@@ -81,8 +81,9 @@ sudo -u odoo git push -u origin "$(sudo -u odoo git branch --show-current)"
 sudo -u odoo bash -c 'git add -A && (git diff --cached --quiet || git commit -m "chore: auto $(date -u +%F_%T)") && git pull --rebase origin $(git branch --show-current) && git push origin $(git branch --show-current)'
 
 从当前分支切换到Branch_uat1分支，并从服务端拉代码下来
-sudo -u odoo git fetch origin Branch_uat1:Branch_uat1 && sudo -u odoo git switch Branch_uat1
+sudo -u odoo git fetch origin Branch_uat:Branch_uat && sudo -u odoo git switch Branch_uat
 
+sudo -u odoo git fetch origin Branch_uat:Branch_uat && sudo -u odoo git switch Branch_uat
 sudo -u odoo git fetch origin Branch_pro:Branch_pro && sudo -u odoo git switch Branch_pro
 
 
@@ -640,6 +641,163 @@ git grep -IUl $'\r' -- .
 
 照这个做完，你的代码库就会从此“进出皆 LF”，无论是谁、在哪台机子、用什么编辑器克隆/提交，都不会再出现 CRLF 把你编译环境搞崩的情况。
 
+------------------------------------------------------------------------------
+
+Git 已经把所有远程分支的引用都拉下来了（那一堆 `= [up to date]`），但最后报错：
+
+> You asked to pull from the remote 'origin', but did not specify a branch.  
+> Because this is not the default configured remote for your current branch, you must specify a branch on the command line.
+
+意思：**你当前本地仓库里**  
+1. 没有任何分支（或分支没有对应的上游），  
+2. 也没有指定默认拉取哪个远程分支，  
+所以 `git pull` 不知道要把 `origin/???` 合并到谁身上。
+
+---
+
+### 一、快速解决（任选其一）
+
+#### 1. 直接 checkout 到想要的分支
+最常见：仓库默认主线叫 `main` 或 `master` 或 `sisdk-2025.6` 等。  
+```bash
+git checkout sisdk-2025.6        # 本地会自动创建跟踪 origin/sisdk-2025.6
+git pull                         # 以后再 pull 就不用写参数了
+```
+
+#### 2. 如果就想留在当前分支（比如自己新建了 `mywork`）
+告诉 Git 它应该跟哪个远程分支配对：
+```bash
+git branch --set-upstream-to=origin/sisdk-2025.6 mywork
+git pull
+```
+以后直接 `git pull` 即可。
+
+#### 3. 一次性手动拉并合并（不设置上游）
+```bash
+git pull origin sisdk-2025.6
+```
+适合“只想拿最新代码看看”的临时场景。
+
+---
+
+### 二、检查当前状态（防呆）
+```bash
+git branch -a        # 看本地/远程全部分支
+git status           # 看当前分支及上游
+git remote -v        # 确认 origin 指向 SiliconLabs 仓库
+```
+
+---
+
+### 一句话总结
+**先 `git checkout <目标分支>` 再 `git pull`**，  
+或者 **`git pull origin <目标分支>`** 即可；  
+报错不是网络问题，只是没告诉 Git 该拉哪条分支。
+
+
+----------------------------------------------------------------------------------------------------------------
+# 解决linux下LF问题
+
+# 1) 让 Git 在 Linux 下始终写入 LF
+git config core.autocrlf input
+
+# 2) 加一个 .gitattributes，强制脚本类走 LF
+cat > .gitattributes <<'EOF'
+# 默认文本统一 LF
+* text=auto eol=lf
+
+# Windows 专属文件才用 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 脚本/源码确保 LF
+*.sh  text eol=lf
+*.bash text eol=lf
+*.py  text eol=lf
+odoo-bin text eol=lf
+EOF
+
+# 3) 让 Git 重新规范化（不丢改动的安全方式）
+git add --renormalize .
+git status
+# 确认只是换行变化后提交
+git commit -m "chore: normalize line endings to LF on Linux (fix CRLF python3\\r issue)"
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+# 详细解释windows资源管理器右键菜单下TortoiseGit菜单项的每一项内容，业务意义。
+Compare with working tree
+Show changes as unified diff
+Compare with previous revision
+Browse repository
+Merge to "Branch uat"...
+Reset "Branch uat" to this...
+Switch/Checkout to this...
+Create Branch at this version...
+Create Tag at this version...
+Rebase "Branch uat" onto this...(G)
+Export this version...
+Revert change by this commit
+Edit Notes
+Cherry Pick this commit.
+Format Patch...
+Collapse revisions
+Copy to clipboardSearch log messages...
+Show branches this commit is on
+
+
+下面逐条把你列出的 **TortoiseGit** 右键菜单项解释清楚：做了什么、在什么业务场景用、等价的 `git` 命令、以及风险提醒。
+
+> 约定：
+>
+> * **工作区**= working tree；**暂存区**= index；**HEAD**=当前检出提交
+> * “改历史”指会产生重写历史（需谨慎，尤其已推送远端）
+
+| 菜单项                                     | 作用/结果                                     | 典型业务场景                           | 等价/相关 git 命令                                            | 注意点                                 |                            |                                   |
+| --------------------------------------- | ----------------------------------------- | -------------------------------- | ------------------------------------------------------- | ----------------------------------- | -------------------------- | --------------------------------- |
+| **Compare with working tree**           | 把选中的提交/文件 **与当前工作区** 对比，显示差异              | 代码评审、看自己改了哪些相对基线有变动              | `git diff <commit>...`                                  | 只看差异，不改动任何东西                        |                            |                                   |
+| **Show changes as unified diff**        | 以 **统一 diff 文本** 方式展示/导出变更（便于贴到工单/邮件）     | 代码评审、提交评审材料                      | `git diff` / 生成 patch 风格文本                              | 纯展示/导出，不改动仓库                        |                            |                                   |
+| **Compare with previous revision**      | 选中提交与其 **父提交** 比较变化                       | 快速看“这次提交到底改了啥”                   | `git show <commit>`                                     | 纯比较                                 |                            |                                   |
+| **Browse repository**                   | 打开该提交点的 **仓库浏览器**（树/文件内容）                 | 查看某历史版本的目录/文件                    | `git ls-tree`, `git show`                               | 只读浏览                                |                            |                                   |
+| **Merge to "Branch uat"...**            | 以 **当前选中提交/分支为来源**，**合并到 uat**            | 把功能分支内容并回测试分支 `uat`              | `git checkout uat && git merge <source>`                | 可能产生合并冲突；通常是 **非快进合并**              |                            |                                   |
+| **Reset "Branch uat" to this...**       | 将 **uat 分支指针** 移到选中提交（可选 soft/mixed/hard） | 回滚错误合并、重置分支基线                    | `git reset --{soft                                      | mixed                               | hard} <commit>`（在 `uat` 上） | **改历史**：如果 `uat` 已推送，重置后需强推，会影响他人 |
+| **Switch/Checkout to this...**          | 切换到选中提交/分支；若是提交哈希则进入 **detached HEAD**    | 临时回看某历史版本、复现问题                   | `git checkout <ref>` 或 `git switch`                     | detached 模式下提交不会挂到分支上，需建分支保存        |                            |                                   |
+| **Create Branch at this version...**    | 从选中提交 **创建新分支** 并可选检出                     | 从历史点拉出修复/热修                      | `git branch <new> <commit>`（+`git checkout <new>`）      | 不改历史；新分支会指向该提交                      |                            |                                   |
+| **Create Tag at this version...**       | 在该提交 **打标签**（可注释 tag）                     | 发版、里程碑标记                         | `git tag -a <tag> <commit>`                             | 标签名需唯一；是否推送到远端另选                    |                            |                                   |
+| **Rebase "Branch uat" onto this...(G)** | 把 **uat** 的线性历史 **变基** 到选中提交上             | 保持线性历史、把功能分支“挪到”更新基线             | `git checkout uat && git rebase <base>`                 | **改历史**：rebase 后的提交哈希会变；已推送的分支慎用    |                            |                                   |
+| **Export this version...**              | 按该提交导出 **纯文件快照** 到目录/zip（不含 `.git`）       | 交付一份干净源码包、第三方审计                  | `git archive --format=zip <commit>`                     | 只导出文件，不改仓库                          |                            |                                   |
+| **Revert change by this commit**        | 生成一个 **反向提交** 来撤销该次修改                     | 线上发现问题，做 **正向回滚**                | `git revert <commit>`                                   | **不改历史**，最安全的回滚方式；可能遇到冲突            |                            |                                   |
+| **Edit Notes**                          | 编辑该提交的 **git notes**（不改提交本体）              | 给提交加评语、缺陷号、审阅备注                  | `git notes add -m "..." <commit>`                       | notes 不会改变提交哈希；需注意远端 notes 的获取/推送配置 |                            |                                   |
+| **Cherry Pick this commit.**            | 将选中提交 **拣选** 到当前分支顶端                      | 把 bugfix 从 `main` 拣到 `release/x` | `git cherry-pick <commit>`                              | 可能冲突；会新生成一个提交（哈希不同）                 |                            |                                   |
+| **Format Patch...**                     | 生成 **邮件补丁**（`.patch`/`.mbox`），可指定范围       | 走邮件流/他方用 `git am` 应用             | `git format-patch <range>`                              | 补丁按提交顺序生成；描述要规范                     |                            |                                   |
+| **Collapse revisions**                  | 在日志视图里 **折叠多条提交**（UI 行为）                  | 浏览长链路历史时看整体                      | ——                                                      | 仅视图操作，不改仓库                          |                            |                                   |
+| **Copy to clipboard**                   | 把选中提交的信息（哈希、标题、diff 等）复制到剪贴板              | 粘贴到工单/聊天/评审                      | ——                                                      | 仅复制                                 |                            |                                   |
+| **Search log messages...**              | 在日志中按关键字/作者/路径等 **搜索提交**                  | 定位“谁在何时改了哪里”                     | `git log --grep=... --author=... -- <path>`             | 仅查询                                 |                            |                                   |
+| **Show branches this commit is on**     | 列出 **包含该提交** 的所有分支/标签                     | 判断提交是否已进入 `uat`/`prod`           | `git branch --contains <commit>` / `git tag --contains` | 只读查询                                |                            |                                   |
+
+---
+
+## 快速选择建议（实战角度）
+
+* **回滚出错但已推送**：优先用 **Revert**（安全，审核友好）。
+* **维护线性历史**：在未推送或小团队可控范围内，用 **Rebase onto**；已推送慎用。
+* **把某个修复带到别的分支**：用 **Cherry-pick**。
+* **发版**：**Create Tag**；并把 tag 推到远端。
+* **错误合并/脏历史需重置**：**Reset**（需团队同步+强推）。
+* **对外打包给第三方**：**Export this version** 或 `git archive`。
+* **代码评审**：Compare/Show unified diff；需要提供补丁就 **Format Patch**。
+
+如果你贴一下你的实际场景（比如：`uat` 分支已经推远端，是否多人协作、是否要求线性历史、是否要回滚线上等），我可以给出“这一步点哪一项+背后会发生什么”的具体操作清单。
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
 
 
 
@@ -647,6 +805,39 @@ git grep -IUl $'\r' -- .
 
 
 
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
 
 
 
