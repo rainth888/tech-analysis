@@ -638,7 +638,66 @@ git commit -m "Normalize line endings to LF via .gitattributes"
 git grep -IUl $'\r' -- .
 ```
 
-照这个做完，你的代码库就会从此“进出皆 LF”，无论是谁、在哪台机子、用什么编辑器克隆/提交，都不会再出现 CRLF 把你编译环境搞崩的情况。
+---
+
+你这次 `git pull` 没有把最新代码合到本地，是因为**当前本地分支没有设置 upstream（跟踪分支）**。日志里已经明示：
+
+```
+There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+```
+
+意思是：虽然已经从远端取回了新对象（fetch 成功），但 **pull 的“合并/变基”步骤被中止**，因为它不知道要把谁合到你当前分支。
+
+## 快速修复（选一种即可）
+
+### 方案 A：只这一次指定远端和分支
+
+```bash
+git pull origin Branch_Branch_Branch_https_H265H264
+```
+
+### 方案 B：给当前分支设置跟踪分支（以后直接 `git pull` 即可）
+
+```bash
+# 先确认你当前就在目标本地分支上
+git status -sb
+
+# 把当前分支的 upstream 设为同名远端分支
+git branch --set-upstream-to=origin/Branch_Branch_Branch_https_H265H264
+
+# 再拉取
+git pull
+```
+
+### 方案 C：如果你本地还没有这个分支，直接创建并跟踪远端
+
+Git 2.23+：
+
+```bash
+git switch -t origin/Branch_Branch_Branch_https_H265H264
+# 之后
+git pull
+```
+
+老版本 Git：
+
+```bash
+git checkout -t origin/Branch_Branch_Branch_https_H265H264
+```
+
+## 建议的自检命令
+
+```bash
+git branch -vv       # 看看当前分支是否有 [origin/xxx] 跟踪信息
+git status -sb       # 简洁查看当前分支与远端关系
+git remote -v        # 确认 origin 指向的地址
+```
+
+## 发生了什么？
+
+* 你的 `git pull` 先做了 **fetch**（你看到 remote 的新分支和更新已经列出来了），但因为“当前分支没有设置上游分支”，**merge/rebase 步骤被跳过**，所以工作区看起来没变化。
+* 只要设定一次 upstream，以后直接 `git pull` 就会自动从 `origin/Branch_Branch_Branch_https_H265H264` 合并（或变基）到你当前分支。
 
 
 
