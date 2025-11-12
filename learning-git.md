@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 在 Ubuntu 22.04 下用 Git 提交代码，**从“写完文件”到“推到远程”**只需 4 步，复制即可用。
@@ -720,3 +721,859 @@ git remote -v        # 确认 origin 指向的地址
 
 
 
+=======
+
+
+在 Ubuntu 22.04 下用 Git 提交代码，**从“写完文件”到“推到远程”**只需 4 步，复制即可用。
+
+------------------------------------------------
+① 配置身份（一次就够）
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+
+------------------------------------------------
+② 写代码 → 加到暂存区
+
+```bash
+# 编辑文件...
+git add .                 # 所有改动进暂存区
+# 或只加某个文件
+git add src/main.py
+```
+
+------------------------------------------------
+③ 提交（本地生成版本）
+
+```bash
+git commit -m "feat: 用户登录接口"
+```
+git config --global user.email "rain_th@hotmail.com"
+git config --global user.name "rainth888"
+
+> 消息格式参考：**类型: 简要描述**（feat/fix/docs/style/refactor/test/chore）
+
+------------------------------------------------
+④ 推到远程（GitHub/GitLab）
+
+```bash
+git push origin main        # 远程分支叫 main
+# 第一次推送可加 -u 以后直接 git push
+git push -u origin main
+
+
+```
+
+------------------------------------------------
+完整一条命令版（今天就能用）
+
+```bash
+git add . && git commit -m "init: 首次提交" && git push origin main
+```
+
+- 用一句脚本，编写将当前git库的所有变更提交到当前库分支的远程分支
+
+git add -A && git commit -m "$(date '+%Y-%m-%d %H:%M:%S') auto commit" && git push origin HEAD
+
+git add -A && (git diff --cached --quiet || git commit -m "chore: auto-commit $(date -u +'%Y-%m-%d %H:%M:%S UTC')") && git push
+
+git add -A && (git diff --cached --quiet || git commit -m "chore: auto-commit $(date -u +'%Y-%m-%d %H:%M:%S UTC')") && git push -u origin "$(git branch --show-current)"
+
+sudo -u odoo git config --global user.name "rainth888"
+sudo -u odoo git config --global user.email "rain_th@hotmail.com"
+
+sudo chmod 600 /opt/odoo/.ssh/id_ed25519
+sudo chmod 600 /opt/odoo/.ssh/id_*
+sudo chmod 644 /opt/odoo/.ssh/*.pub
+sudo chmod 700 /opt/odoo/.ssh
+
+拉取并自动合并（推荐用 rebase 保持线性）：
+sudo -u odoo git pull --rebase origin "$(sudo -u odoo git branch --show-current)"
+
+sudo -u odoo git add -A && \
+sudo -u odoo bash -c 'git diff --cached --quiet || git commit -m "chore: auto-commit $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)"' && \
+sudo -u odoo git push -u origin "$(sudo -u odoo git branch --show-current)"
+
+
+服务端推送：
+sudo -u odoo git push -u origin "$(sudo -u odoo git branch --show-current)"
+
+
+# 一句话脚本，直接可以把当前文件夹下的git变更信息全部推到服务器：
+sudo -u odoo bash -c 'git add -A && (git diff --cached --quiet || git commit -m "chore: auto $(date -u +%F_%T)") && git pull --rebase origin $(git branch --show-current) && git push origin $(git branch --show-current)'
+
+从当前分支切换到Branch_uat1分支，并从服务端拉代码下来
+sudo -u odoo git fetch origin Branch_uat:Branch_uat && sudo -u odoo git switch Branch_uat
+
+sudo -u odoo git fetch origin Branch_uat:Branch_uat && sudo -u odoo git switch Branch_uat
+sudo -u odoo git fetch origin Branch_pro:Branch_pro && sudo -u odoo git switch Branch_pro
+
+
+------------------------------------------------
+常见小坑对照
+
+| 现象 | 解决 |
+|---|---|
+| `fatal: not a git repository` | 先 `git init` 或 `git clone <url>` |
+| `Please tell me who you are` | 补做第 ① 步配置 |
+| `origin does not appear to be a git repository` | 先 `git remote add origin <SSH/HTTPS 地址>` |
+| `Permission denied (publickey)` | 把公钥加到 GitHub/GitLab，见下方链接 |
+
+------------------------------------------------
+公钥速配（一次性）
+
+```bash
+ssh-keygen -t ed25519 -C "ubuntu@odooserver"
+cat ~/.ssh/id_ed25519.pub   # 复制 → GitHub Settings → SSH keys → New
+```
+
+------------------------------------------------
+一句话记忆
+
+> **“add → commit → push”**  
+> 写完代码敲这三下，版本就飞到远程仓库。
+
+
+------------------------------------------------
+
+git.exe pull --progress -v --no-rebase -- "origin"
+
+
+非常好，这个情况其实在 **Windows + Git Bash + GitHub 分支引用** 环境中非常常见，问题并不是 Git 没有更新，而是 **命令行里引用的分支（`HEAD`）并不是你当前远程分支的正确指针**。
+
+你通过 **TortoiseGit** 可以更新成功，是因为它正确知道你所在的远程分支（如 `origin/Branch_18.0.chowtaiking`）。
+而你命令行里写的：
+
+```bash
+git pull origin HEAD
+```
+
+实际上只是在拉取 **远程的“HEAD”指针**，而不是远程的分支 `origin/Branch_18.0.chowtaiking`。
+GitHub 的远程 `HEAD` 通常指向默认分支（比如 `main` 或 `master`），所以自然显示 `Already up to date.`。
+
+---
+
+## ✅ 一、正确做法
+
+### 方式1：显式指定远程分支名
+
+```bash
+git pull origin Branch_18.0.chowtaiking
+```
+
+这才是等价于 TortoiseGit 中“Pull from origin/Branch_18.0.chowtaiking”。
+
+---
+
+### 方式2：让 Git 记住上游分支（推荐）
+
+先设置跟踪关系一次：
+
+```bash
+git branch --set-upstream-to=origin/Branch_18.0.chowtaiking
+```
+
+然后之后只需：
+
+```bash
+git pull
+```
+
+Git 就会自动知道要从 `origin/Branch_18.0.chowtaiking` 拉取。
+
+---
+
+### 方式3：查看当前分支与远程绑定状态
+
+执行：
+
+```bash
+git status -sb
+```
+
+或：
+
+```bash
+git branch -vv
+```
+
+你会看到类似：
+
+```
+* Branch_18.0.chowtaiking 123abc4 [origin/Branch_18.0.chowtaiking] Some commit message
+```
+
+如果括号里没有 `[origin/Branch_18.0.chowtaiking]`，就说明还没建立跟踪关系。
+
+---
+
+## ✅ 二、额外建议
+
+1. **永远不要用 `HEAD` 当远程分支名**（除非你确实知道远程仓库的 `HEAD` 指向哪一个分支）。
+
+   * `HEAD` ≠ 你当前分支名。
+   * `HEAD` 在远程只是“默认分支”的符号引用。
+
+2. **确保分支名一致**
+   有时你本地分支叫 `Branch_18.0.chowtaiking`，远程分支也一样，但如果本地没建立 tracking，就会出现你这种“明明更新了，Git 却说 up to date”的假象。
+
+3. **用 `git fetch --all` 再 `git log origin/Branch_18.0.chowtaiking -n 3`**
+   这样能确认远程确实有更新而本地还没。
+
+---
+
+## ✅ 解决步骤总结
+
+直接执行：
+
+```bash
+git fetch origin
+git pull origin Branch_18.0.chowtaiking
+```
+
+若成功更新，再执行：
+
+```bash
+git branch --set-upstream-to=origin/Branch_18.0.chowtaiking
+```
+
+以后就能直接用：
+
+```bash
+git pull
+```
+
+---
+
+要不要我帮你写一条通用的“智能更新脚本”，能在当前分支下自动识别远程对应分支并拉取？（比如 `git-smart-pull.sh`，直接执行即可自动识别分支更新）
+
+-----------------------------------------------------------------------------------------------
+
+是的，报错的根因是：**GitHub 早就禁用了用账号密码进行 Git 操作**（无论是否开启 2FA）。现在只能用 **PAT（个人访问令牌）** 或 **SSH 密钥**。开启了双因子认证后，更是必须用 PAT/SSH。
+
+给你两条稳妥方案（任选其一）：
+
+---
+
+## 方案 A：用 HTTPS + PAT（最简单）
+
+1. 在 GitHub 上创建一个令牌
+   路径：右上角头像 → **Settings** → **Developer settings** →
+
+* **Personal access tokens (classic)**：选择 **repo** 权限（读私有仓库至少要有 `repo`）。
+  或
+* **Fine-grained tokens**：选中目标仓库（`rai888/od`），给读权限（Content: Read）。
+  创建后得到一串令牌（`ghp_...` 或 `github_pat_...` 开头）。
+
+2. 用令牌代替密码去 clone（注意：**账号填你的 GitHub 用户名，密码填 PAT**）
+
+```bash
+# 以 odoo 用户执行，避免 root 文件属主问题
+sudo -u odoo bash -lc '
+  mkdir -p /opt/odoo/src
+  cd /opt/odoo/src
+  git clone https://github.com/rai888/od.git odoo18
+'
+```
+
+当它提示：
+
+```
+Username for 'https://github.com': 你的GitHub用户名
+Password for 'https://你的GitHub用户名@github.com': 粘贴PAT（不是登录密码）
+```
+
+> 安全小贴士：
+>
+> * **不要**把 `https://username:PAT@github.com/...` 这样直接写在命令里（会留在 shell 历史和进程列表）。
+> * 如需免输，给 `odoo` 用户设置凭据助手（只在可信服务器上用）：
+>
+>   ```bash
+>   sudo -u odoo git config --global credential.helper store
+>   ```
+>
+>   下次输入后会保存到 `~odoo/.git-credentials`。
+
+> 如果你的仓库在组织名下且组织开启了 **SSO**，记得在创建完 PAT 后，**Authorize** 它用于该组织，否则 clone 仍会 401。
+
+---
+
+## 方案 B：用 SSH 密钥（长期更省心）
+
+1. 给 `odoo` 用户生成 SSH key：
+
+```bash
+sudo -u odoo bash -lc '
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  ssh-keygen -t ed25519 -C "odoo@odooserver" -f ~/.ssh/id_ed25519 -N ""
+  echo "===== 下行是公钥，复制到 GitHub SSH Keys ====="
+  cat ~/.ssh/id_ed25519.pub
+'
+```
+
+```
+ecs-user@odooserver:/$ sudo -u odoo bash -lc '
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  ssh-keygen -t ed25519 -C "odoo@odooserver" -f ~/.ssh/id_ed25519 -N ""
+  echo "===== 下行是公钥，复制到 GitHub SSH Keys ====="
+  cat ~/.ssh/id_ed25519.pub
+'
+Generating public/private ed25519 key pair.
+Your identification has been saved in /opt/odoo/.ssh/id_ed25519
+Your public key has been saved in /opt/odoo/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:66iHfQC+ockqZTgnu0NQ65bR0cVzfFc0ebn9dH7HwLY odoo@odooserver
+The key's randomart image is:
++--[ED25519 256]--+
+|     . o..     +=|
+|  . . . o o . .oo|
+| . o .   o . o  +|
+|. o o         +.+|
+|.o + .  S    . *o|
+|+.B o .  .    E *|
+|.X o = ..       o|
+|+ + o oo.        |
+|++  .o...        |
++----[SHA256]-----+
+===== 下行是公钥，复制到 GitHub SSH Keys =====
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFp/HAQB8Ie+14dQEBhs+1h9f+AeyS4fInFMLwJSdyuC odoo@odooserver
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHRIoXKdEdnp5oCRe6N5N/dQbNuOGR/T80An5mnc2gg8 ecs-user@odooserver
+
+```
+
+
+2. 把显示出来的 **公钥** 添加到 GitHub：
+   GitHub → **Settings** → **SSH and GPG keys** → **New SSH key** → 粘贴公钥保存。
+   （如在组织仓库且强制 SSO，需要**Authorize** 这个 SSH key）
+
+3. 测试并 clone：
+
+```bash
+# 测试
+sudo -u odoo ssh -T git@github.com
+
+# 成功后克隆（SSH 地址）
+sudo -u odoo bash -lc '
+  mkdir -p /opt/odoo/src
+  cd /opt/odoo/src
+  git clone git@github.com:rai888/od.git odoo18
+'
+```
+```
+ecs-user@odooserver:/$ sudo -u odoo ssh -T git@github.com
+The authenticity of host 'github.com (20.205.243.166)' can't be established.
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+Hi rainth888! You've successfully authenticated, but GitHub does not provide shell access.
+ecs-user@odooserver:/$
+```
+
+---
+
+## 常见坑位速查
+
+* **“Password authentication is not supported”**：说明你还在用账号密码。改用 PAT 或 SSH。
+* **一直提示要账号密码**：仓库是私有；或 PAT 权限不够；或组织 SSO 未授权。
+* **权限/属主不对**：在服务器上以 `odoo` 用户执行 git（如上用 `sudo -u odoo`）。
+* **URL 拼错**：确认仓库地址确实是 `rai888/od`（大小写也敏感于可读性）。
+* **代理/网络问题**：需要的话配置 `git config --global http.proxy ...`。
+
+---
+
+如果你愿意，我可以把你现在这条克隆命令改写成**一步到位的脚本**（含：给 odoo 用户生成 SSH key、打印公钥、克隆仓库、校验属主权限），你直接粘贴运行就行。你更偏好用 PAT 还是 SSH？
+
+
+-----------------------------------------------------------------------------------
+
+在 Ubuntu（或其他 Linux）里，**GitHub 仓库切换分支并拉取最新内容** 只要 3 步：
+
+------------------------------------------------
+① 查看远程有哪些分支
+```bash
+git fetch origin                # 把远程所有分支引用抓到本地
+git branch -r                   # 列出远程分支（origin/xxx）
+```
+或更直观：
+```bash
+git branch -a                   # 本地+远程一起列
+```
+
+------------------------------------------------
+② 切换到目标分支（本地不存在时会自动新建追踪分支）
+```bash
+git switch <分支名>             # Git 2.23+ 推荐
+# 老版本用
+git checkout <分支名>
+```
+**示例**：
+```bash
+git switch develop              # 本地没有 develop 会自动创建并关联 origin/develop
+```
+
+------------------------------------------------
+③ 拉取该分支最新代码
+```bash
+git pull origin <分支名>        # 显式指定远程分支
+```
+若当前分支已关联远程分支，直接写：
+```bash
+git pull                        # 等价于 git pull origin 当前分支
+```
+
+------------------------------------------------
+完整一条命令版（当前已在目标分支时）
+```bash
+git switch develop && git pull
+```
+
+------------------------------------------------
+常见小坑对照
+
+| 现象 | 解决 |
+|---|---|
+| error: pathspec 'xxx' did not match any file(s) known to git | 先 `git fetch origin` 再 switch |
+| Your branch is behind 'origin/develop' by 3 commits | 直接 `git pull` 即可 |
+| 本地有未提交修改 | 先 `git stash` 或 `git commit`，再 pull |
+
+------------------------------------------------
+一句话记忆
+
+> **“fetch 看分支 → switch 切分支 → pull 拿最新”**  
+三步走完，代码就处在 GitHub 最新状态。
+
+
+-----------------------------------------------------------------------------------------------
+
+
+一句话：Git 已经能连上 GitHub，但**没有可用的私钥** → 被 GitHub 拒了。  
+把本机的 **SSH 公钥** 加到 GitHub 账户里即可，**无需 root**。
+
+------------------------------------------------
+① 生成/确认本地密钥（ecs-user 身份下做）
+
+```bash
+ls ~/.ssh/id_*.pub
+```
+- 如果有输出 → 直接用第 ② 步  
+- 如果空 → 生成一个（一路回车）
+  ```bash
+  ssh-keygen -t ed25519 -C "ecs-user@odooserver"
+  ```
+
+------------------------------------------------
+② 把公钥复制到剪贴板
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+# 选中输出的整行内容复制
+```
+
+------------------------------------------------
+③ 在 GitHub 端添加公钥
+
+1. 浏览器登录 GitHub → 右上角头像 → **Settings**  
+2. 左侧 **SSH and GPG keys** → **New SSH key**  
+3. Title 填 `odooserver-ecs-user`，Key 里粘贴刚才的公钥 → **Add SSH Key**
+
+------------------------------------------------
+④ 立刻测试连通性
+
+```bash
+ssh -T git@github.com
+```
+首次会提示：
+```
+The authenticity of host 'github.com ...' 
+```
+输入 **yes** → 看到
+```
+Hi <YourGitHubName>! You've successfully authenticated ...
+```
+→ 成功！
+
+------------------------------------------------
+⑤ 回到仓库继续 fetch
+
+```bash
+git fetch origin
+```
+→ 不再报 `Permission denied`，正常拉取。
+
+------------------------------------------------
+一句话记忆
+
+> **“Permission denied (publickey)” = GitHub 不认识你的钥匙；把 `~/.ssh/id_xxx.pub` 加到 GitHub → `ssh -T git@github.com` 出现 Hi xxx! 即可。**
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+明白了：你要“全仓库统一为 LF（Unix 行尾）”，并且保证以后**任何提交/克隆**都维持 LF。下面给你一套一次到位的做法（Windows 上用 VS Code 编辑，Ubuntu 编译没问题）：
+
+---
+
+# 一次性落地方案（强制 LF）
+
+## 1) Git 全局配置（Windows 上执行一次）
+
+```bash
+git config --global core.autocrlf false   # 不做自动 CRLF↔LF 转换
+git config --global core.safecrlf true    # 发现混用/转换风险就报错
+```
+
+## 2) 在仓库根提交 `.gitattributes`（**关键**）
+
+> 作用：让 Git 对文本文件“工作区 checkout 用 LF，提交/存储也用 LF”。这样即使在 Windows，工作区也是 LF。
+
+在项目根新建/编辑 `.gitattributes`（确保用 LF 保存）：
+
+```
+# 对所有被判定为文本的文件：强制 LF
+* text=auto eol=lf
+
+# 明确标注常见二进制，避免被误判为文本
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.7z  binary
+*.rar binary
+*.exe binary
+*.dll binary
+*.so  binary
+*.a   binary
+*.jar binary
+*.mp4 binary
+*.mov binary
+*.ico binary
+*.wav binary
+
+# 如果你确实需要 Windows 批处理保持 CRLF，才取消下面的注释
+#*.bat text eol=crlf
+#*.cmd text eol=crlf
+```
+
+> **注意**：保存 `.gitattributes` 本身就必须是 LF，否则 `safecrlf` 会拦你。VS Code 右下角把 `CRLF` 切到 `LF` 再保存。
+
+## 3) 规范化整个仓库（把现存文件统一成 LF）
+
+工作区必须是干净的（没有未提交更改），然后：
+
+```bash
+# 让 Git 按新的 .gitattributes 规则重签出并规范行尾
+git add --renormalize .
+git commit -m "Normalize line endings to LF via .gitattributes"
+```
+
+> 这一步等价于“批量 dos2unix + 记录到索引里”，由 Git 自己做最稳。
+
+（可选）如果你更想显式跑一遍 `dos2unix` 再提交：
+
+* 在 WSL/Ubuntu 下：
+
+  ```bash
+  sudo apt-get update && sudo apt-get install -y dos2unix
+  git ls-files -z | xargs -0 dos2unix --keepdate
+  git add -A
+  git commit -m "dos2unix all tracked text files"
+  ```
+* 然后仍建议执行一次 `git add --renormalize .`，确保与 `.gitattributes` 一致。
+
+## 4) 验证与收尾
+
+* 检查是否还有 CRLF 遗留（仓库根执行）：
+
+  ```bash
+  git grep -IUl $'\r' -- .
+  ```
+
+  没有输出就说明全是 LF 了。
+* 推送后，任何人**重新克隆**这个仓库，工作区也会被强制 checkout 成 **LF**（因为 `.gitattributes` 已生效）。
+
+---
+
+# 之后如何长期“自动保持 LF”
+
+1. **.gitattributes 已经保证**：
+
+   * Windows/VS Code 新建的文件即便存成 CRLF，**提交时**会被 Git 规范为 **LF** 存进仓库；
+   * **工作区 checkout** 也会强制为 **LF**，所以 VS Code 默认会以 LF 打开、保存。
+
+2. VS Code 建议加上 `.editorconfig`（进一步约束编辑器）
+   在仓库根新建 `.editorconfig`（LF 保存）：
+
+```
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+```
+
+VS Code 会自动识别并以 LF 保存，和 `.gitattributes` 双保险。
+
+3. 团队机器一致性
+   确保所有人的 Git 都是：
+
+```bash
+git config --global core.autocrlf false
+git config --global core.safecrlf true
+```
+
+（`autocrlf=false` 是把“行尾策略控制权”交给 `.gitattributes`，行为更可预期。）
+
+---
+
+# 常见问题与补充
+
+* **为什么选 `* text=auto eol=lf` 而不是 `* -text`？**
+  `-text` 是“完全不规范化”，会保留历史里混杂的 CRLF/LF，不利于 Ubuntu 下构建脚本/Makefile/Shebang 等；而 `eol=lf` 让仓库与工作区都统一 LF，最适合“Windows 编辑、Linux 编译”。
+
+* **二进制误判**
+  上面列了常见二进制后缀。若你有自定义后缀的二进制产物，也加到 `.gitattributes` 里标记为 `binary`。
+
+* **子模块/第三方代码**
+  子模块需要在各自子模块仓库内同样设置 `.gitattributes`。纯第三方压缩包不解压就无影响。
+
+---
+
+## 快速执行清单（拷走即用）
+
+```bash
+# 全局（Windows）：
+git config --global core.autocrlf false
+git config --global core.safecrlf true
+
+# 仓库根写入 .gitattributes（LF 保存，内容见上）
+# 然后规范化并提交：
+git add --renormalize .
+git commit -m "Normalize line endings to LF via .gitattributes"
+
+# （可选）检查仓库是否还存在 CRLF：
+git grep -IUl $'\r' -- .
+```
+
+照这个做完，你的代码库就会从此“进出皆 LF”，无论是谁、在哪台机子、用什么编辑器克隆/提交，都不会再出现 CRLF 把你编译环境搞崩的情况。
+
+------------------------------------------------------------------------------
+
+Git 已经把所有远程分支的引用都拉下来了（那一堆 `= [up to date]`），但最后报错：
+
+> You asked to pull from the remote 'origin', but did not specify a branch.  
+> Because this is not the default configured remote for your current branch, you must specify a branch on the command line.
+
+意思：**你当前本地仓库里**  
+1. 没有任何分支（或分支没有对应的上游），  
+2. 也没有指定默认拉取哪个远程分支，  
+所以 `git pull` 不知道要把 `origin/???` 合并到谁身上。
+
+---
+
+### 一、快速解决（任选其一）
+
+#### 1. 直接 checkout 到想要的分支
+最常见：仓库默认主线叫 `main` 或 `master` 或 `sisdk-2025.6` 等。  
+```bash
+git checkout sisdk-2025.6        # 本地会自动创建跟踪 origin/sisdk-2025.6
+git pull                         # 以后再 pull 就不用写参数了
+```
+
+#### 2. 如果就想留在当前分支（比如自己新建了 `mywork`）
+告诉 Git 它应该跟哪个远程分支配对：
+```bash
+git branch --set-upstream-to=origin/sisdk-2025.6 mywork
+git pull
+```
+以后直接 `git pull` 即可。
+
+#### 3. 一次性手动拉并合并（不设置上游）
+```bash
+git pull origin sisdk-2025.6
+```
+适合“只想拿最新代码看看”的临时场景。
+
+---
+
+### 二、检查当前状态（防呆）
+```bash
+git branch -a        # 看本地/远程全部分支
+git status           # 看当前分支及上游
+git remote -v        # 确认 origin 指向 SiliconLabs 仓库
+```
+
+---
+
+### 一句话总结
+**先 `git checkout <目标分支>` 再 `git pull`**，  
+或者 **`git pull origin <目标分支>`** 即可；  
+报错不是网络问题，只是没告诉 Git 该拉哪条分支。
+
+
+----------------------------------------------------------------------------------------------------------------
+# 解决linux下LF问题
+
+# 1) 让 Git 在 Linux 下始终写入 LF
+git config core.autocrlf input
+
+# 2) 加一个 .gitattributes，强制脚本类走 LF
+cat > .gitattributes <<'EOF'
+# 默认文本统一 LF
+* text=auto eol=lf
+
+# Windows 专属文件才用 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 脚本/源码确保 LF
+*.sh  text eol=lf
+*.bash text eol=lf
+*.py  text eol=lf
+odoo-bin text eol=lf
+EOF
+
+# 3) 让 Git 重新规范化（不丢改动的安全方式）
+git add --renormalize .
+git status
+# 确认只是换行变化后提交
+git commit -m "chore: normalize line endings to LF on Linux (fix CRLF python3\\r issue)"
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+# 详细解释windows资源管理器右键菜单下TortoiseGit菜单项的每一项内容，业务意义。
+Compare with working tree
+Show changes as unified diff
+Compare with previous revision
+Browse repository
+Merge to "Branch uat"...
+Reset "Branch uat" to this...
+Switch/Checkout to this...
+Create Branch at this version...
+Create Tag at this version...
+Rebase "Branch uat" onto this...(G)
+Export this version...
+Revert change by this commit
+Edit Notes
+Cherry Pick this commit.
+Format Patch...
+Collapse revisions
+Copy to clipboardSearch log messages...
+Show branches this commit is on
+
+
+下面逐条把你列出的 **TortoiseGit** 右键菜单项解释清楚：做了什么、在什么业务场景用、等价的 `git` 命令、以及风险提醒。
+
+> 约定：
+>
+> * **工作区**= working tree；**暂存区**= index；**HEAD**=当前检出提交
+> * “改历史”指会产生重写历史（需谨慎，尤其已推送远端）
+
+| 菜单项                                     | 作用/结果                                     | 典型业务场景                           | 等价/相关 git 命令                                            | 注意点                                 |                            |                                   |
+| --------------------------------------- | ----------------------------------------- | -------------------------------- | ------------------------------------------------------- | ----------------------------------- | -------------------------- | --------------------------------- |
+| **Compare with working tree**           | 把选中的提交/文件 **与当前工作区** 对比，显示差异              | 代码评审、看自己改了哪些相对基线有变动              | `git diff <commit>...`                                  | 只看差异，不改动任何东西                        |                            |                                   |
+| **Show changes as unified diff**        | 以 **统一 diff 文本** 方式展示/导出变更（便于贴到工单/邮件）     | 代码评审、提交评审材料                      | `git diff` / 生成 patch 风格文本                              | 纯展示/导出，不改动仓库                        |                            |                                   |
+| **Compare with previous revision**      | 选中提交与其 **父提交** 比较变化                       | 快速看“这次提交到底改了啥”                   | `git show <commit>`                                     | 纯比较                                 |                            |                                   |
+| **Browse repository**                   | 打开该提交点的 **仓库浏览器**（树/文件内容）                 | 查看某历史版本的目录/文件                    | `git ls-tree`, `git show`                               | 只读浏览                                |                            |                                   |
+| **Merge to "Branch uat"...**            | 以 **当前选中提交/分支为来源**，**合并到 uat**            | 把功能分支内容并回测试分支 `uat`              | `git checkout uat && git merge <source>`                | 可能产生合并冲突；通常是 **非快进合并**              |                            |                                   |
+| **Reset "Branch uat" to this...**       | 将 **uat 分支指针** 移到选中提交（可选 soft/mixed/hard） | 回滚错误合并、重置分支基线                    | `git reset --{soft                                      | mixed                               | hard} <commit>`（在 `uat` 上） | **改历史**：如果 `uat` 已推送，重置后需强推，会影响他人 |
+| **Switch/Checkout to this...**          | 切换到选中提交/分支；若是提交哈希则进入 **detached HEAD**    | 临时回看某历史版本、复现问题                   | `git checkout <ref>` 或 `git switch`                     | detached 模式下提交不会挂到分支上，需建分支保存        |                            |                                   |
+| **Create Branch at this version...**    | 从选中提交 **创建新分支** 并可选检出                     | 从历史点拉出修复/热修                      | `git branch <new> <commit>`（+`git checkout <new>`）      | 不改历史；新分支会指向该提交                      |                            |                                   |
+| **Create Tag at this version...**       | 在该提交 **打标签**（可注释 tag）                     | 发版、里程碑标记                         | `git tag -a <tag> <commit>`                             | 标签名需唯一；是否推送到远端另选                    |                            |                                   |
+| **Rebase "Branch uat" onto this...(G)** | 把 **uat** 的线性历史 **变基** 到选中提交上             | 保持线性历史、把功能分支“挪到”更新基线             | `git checkout uat && git rebase <base>`                 | **改历史**：rebase 后的提交哈希会变；已推送的分支慎用    |                            |                                   |
+| **Export this version...**              | 按该提交导出 **纯文件快照** 到目录/zip（不含 `.git`）       | 交付一份干净源码包、第三方审计                  | `git archive --format=zip <commit>`                     | 只导出文件，不改仓库                          |                            |                                   |
+| **Revert change by this commit**        | 生成一个 **反向提交** 来撤销该次修改                     | 线上发现问题，做 **正向回滚**                | `git revert <commit>`                                   | **不改历史**，最安全的回滚方式；可能遇到冲突            |                            |                                   |
+| **Edit Notes**                          | 编辑该提交的 **git notes**（不改提交本体）              | 给提交加评语、缺陷号、审阅备注                  | `git notes add -m "..." <commit>`                       | notes 不会改变提交哈希；需注意远端 notes 的获取/推送配置 |                            |                                   |
+| **Cherry Pick this commit.**            | 将选中提交 **拣选** 到当前分支顶端                      | 把 bugfix 从 `main` 拣到 `release/x` | `git cherry-pick <commit>`                              | 可能冲突；会新生成一个提交（哈希不同）                 |                            |                                   |
+| **Format Patch...**                     | 生成 **邮件补丁**（`.patch`/`.mbox`），可指定范围       | 走邮件流/他方用 `git am` 应用             | `git format-patch <range>`                              | 补丁按提交顺序生成；描述要规范                     |                            |                                   |
+| **Collapse revisions**                  | 在日志视图里 **折叠多条提交**（UI 行为）                  | 浏览长链路历史时看整体                      | ——                                                      | 仅视图操作，不改仓库                          |                            |                                   |
+| **Copy to clipboard**                   | 把选中提交的信息（哈希、标题、diff 等）复制到剪贴板              | 粘贴到工单/聊天/评审                      | ——                                                      | 仅复制                                 |                            |                                   |
+| **Search log messages...**              | 在日志中按关键字/作者/路径等 **搜索提交**                  | 定位“谁在何时改了哪里”                     | `git log --grep=... --author=... -- <path>`             | 仅查询                                 |                            |                                   |
+| **Show branches this commit is on**     | 列出 **包含该提交** 的所有分支/标签                     | 判断提交是否已进入 `uat`/`prod`           | `git branch --contains <commit>` / `git tag --contains` | 只读查询                                |                            |                                   |
+
+---
+
+## 快速选择建议（实战角度）
+
+* **回滚出错但已推送**：优先用 **Revert**（安全，审核友好）。
+* **维护线性历史**：在未推送或小团队可控范围内，用 **Rebase onto**；已推送慎用。
+* **把某个修复带到别的分支**：用 **Cherry-pick**。
+* **发版**：**Create Tag**；并把 tag 推到远端。
+* **错误合并/脏历史需重置**：**Reset**（需团队同步+强推）。
+* **对外打包给第三方**：**Export this version** 或 `git archive`。
+* **代码评审**：Compare/Show unified diff；需要提供补丁就 **Format Patch**。
+
+如果你贴一下你的实际场景（比如：`uat` 分支已经推远端，是否多人协作、是否要求线性历史、是否要回滚线上等），我可以给出“这一步点哪一项+背后会发生什么”的具体操作清单。
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 22bdfb6f3e8d92d02053289376f08799928c2c48

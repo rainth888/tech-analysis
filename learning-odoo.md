@@ -11656,7 +11656,22 @@ odoo18中，将重量的基准单位从kg改为g，是否可行，如何该
 
 # #############################################################################################################
 
+# 最小系统运行
 
+先把系统拉回能运行状态（不加载 addons_custom）
+# 强制最小 addons_path（只加载官方核心）
+./odoo-bin \
+  --addons-path=/opt/odoo/src/odoo18/odoo/addons,/opt/odoo/src/odoo18/addons \
+  -c /opt/odoo/etc/odoo-dev.conf \
+  -d odoo18dev \
+  -i base --stop-after-init
+
+# 前台启动（确认可正常进登录页）
+cd /opt/odoo/src/odoo18
+source ~/.venvs/odoo18/bin/activate
+./odoo-bin \
+  --addons-path=/opt/odoo/src/odoo18/odoo/addons,/opt/odoo/src/odoo18/addons \
+  -c /opt/odoo/etc/odoo-dev.conf
 
 
 
@@ -11664,6 +11679,246 @@ odoo18中，将重量的基准单位从kg改为g，是否可行，如何该
 
 # #############################################################################################################
 
+# 多语言设置
+
+好的，给你一套**在 Odoo 18 给自定义模块（jewelry_product_config / jewelry_menu_sale / jewelry_menu_stock）增加中英日多语言**的完整做法。你可以按“一次性准备 → 提取术语 → 翻译 → 导入/更新 → 验证”的顺序来做。
+
+---
+
+# 0. 预备工作（全局一次性）
+
+1. **启用语言（后台 UI）**
+   设置 → 翻译 → 语言 → 激活 `English (US) / 中文(中国) zh_CN / 日本語 ja_JP`（若列表没有，就点击“加载语言”）。
+2. **开启开发者模式**
+   设置 → 开发者模式（调试）启用，后面会用到“更新术语”等入口。
+
+---
+
+# 1. 模块内必须/建议的代码与结构
+
+在三个自定义模块里做以下检查：
+
+1. **Python 中的可翻译文本**
+
+* 导入：`from odoo import _, fields, models`
+* **用户可见的字符串**用 `_()` 包起来（日志/内部技术字符串不用）：
+
+  ```python
+  raise UserError(_("This product code already exists."))
+  ```
+* **字段选项/帮助/标签**（自动进翻译库）：
+
+  ```python
+  name = fields.Char(string="Product Name", help="Shown on product forms", translate=False)
+  # 注意：string / help 自带翻译入口；只有记录内容要多语言时才加 translate=True
+  ```
+* **记录字段要多语言（记录值随语言变化）**才加 `translate=True`：
+  比如产品属性值名称、描述类字段：
+
+  ```python
+  description = fields.Text(string="Description", translate=True)
+  ```
+* **Selection** 字段选项的标签也会进入翻译（不用额外处理），例如：
+
+  ```python
+  state = fields.Selection([
+      ('draft', 'Draft'),
+      ('confirmed', 'Confirmed'),
+  ], string="Status")
+  ```
+
+2. **XML/QWeb 中的可翻译文本**
+
+* 在视图 XML 内部出现的纯文本会被自动抓取；如需强制，给字段加 `translate="true"`：
+
+  ```xml
+  <field name="name" position="attributes">
+      <attribute name="string">Gold Purity</attribute>
+  </field>
+  ```
+* **数据文件（data/*.xml）**里写死的可见名称，建议加 `translate="true"`：
+
+  ```xml
+  <record id="menu_jewelry_root" model="ir.ui.menu">
+    <field name="name" translate="true">Jewelry</field>
+  </record>
+  ```
+* QWeb 模板里文本默认可翻；要在表达式里翻译可用 `_()`：
+
+  ```xml
+  <t t-esc="_('Total Weight (g)')"/>
+  ```
+
+3. **i18n 目录与文件命名**
+   在每个模块根目录下建：
+
+```
+<module>/
+  i18n/
+    zh_CN.po
+    en_US.po
+    ja_JP.po
+    <module>.pot   # 可选，模板文件
+```
+
+> 语言代码推荐：`zh_CN`、`en_US`、`ja_JP`（与系统语言记录保持一致）。
+
+---
+
+# 2. 提取术语（生成 .pot / .po）
+
+你可以用 **UI** 或 **命令行** 两种方式。
+
+## 方式 A：命令行（适合开发环境批量）
+
+在你的 dev 环境（你之前的 venv311/odoo-bin）中，对每个模块执行一次导出，例子（路径按你的实际修改）：
+
+```bash
+/opt/odoo/src/odoo18/odoo-bin \
+  -c /opt/odoo/etc/odoo-dev.conf \
+  -d odoo18dev \
+  --i18n-export=/mnt/d/_projects/odoo18-chowtaiking.github/addons_custom/jewelry_product_config/i18n/jewelry_product_config.pot \
+  --modules=jewelry_product_config \
+  --language=en_US \
+  --stop-after-init
+  
+/opt/odoo/src/odoo18/odoo-bin \
+  -c /opt/odoo/etc/odoo-dev.conf \
+  -d odoo18dev \
+  --i18n-export=/mnt/d/_projects/odoo18-chowtaiking.github/addons_custom/jewelry_menu_sale/i18n/jewelry_menu_sale.pot \
+  --modules=jewelry_menu_sale \
+  --language=en_US \
+  --stop-after-init
+  
+/opt/odoo/src/odoo18/odoo-bin \
+  -c /opt/odoo/etc/odoo-dev.conf \
+  -d odoo18dev \
+  --i18n-export=/mnt/d/_projects/odoo18-chowtaiking.github/addons_custom/jewelry_menu_stock/i18n/jewelry_menu_stock.pot \
+  --modules=jewelry_menu_stock \
+  --language=en_US \
+  --stop-after-init
+
+```
+
+> 生成 `.pot` 后，**复制**一份分别改名为 `zh_CN.po`、`ja_JP.po`，在这两个文件里填写 msgstr。
+
+也可以直接导出为对应语言的 `.po`：
+
+```bash
+# 导出中文
+--i18n-export=.../i18n/zh_CN.po --language=zh_CN
+# 导出日文
+--i18n-export=.../i18n/ja_JP.po --language=ja_JP
+```
+
+## 方式 B：UI（适合一次性/少量）
+
+设置 → 翻译 → **应用术语** → **导出翻译**
+
+* 文件格式：`PO`
+* 语言：选择 `zh_CN` / `ja_JP`
+* 模块：勾选你的 3 个模块
+* 导出后编辑，再用“**导入翻译**”导回。
+
+---
+
+# 3. 翻译 PO 文件
+
+编辑 `i18n/xx_XX.po`，只改 `msgstr`，不要动 `msgid` 和注释头部元信息。例：
+
+```po
+#. module: jewelry_product_config
+#: model:ir.ui.menu,name:jewelry_product_config.menu_jewelry_root
+msgid "Jewelry"
+msgstr "珠宝"        # zh_CN.po
+
+# 日文
+msgstr "ジュエリー"   # ja_JP.po
+```
+
+> **注意**
+>
+> * 不要翻译技术键（XML ID、字段内部名等）。
+> * `translate=True` 的记录字段值（比如属性值、描述）也会出现在导出的术语里。
+> * 如果你新增/修改了视图或 Python 文本，**记得重新导出/更新术语**（见下一步）。
+
+---
+
+# 4. 导入/更新翻译
+
+有三种常用方法：
+
+1. **把 po 文件放在模块的 i18n 目录，然后“升级模块”**（Apps → 找到模块 → 升级）。Odoo 会自动加载 `i18n/*.po`。
+2. **命令行导入**（不升级也可）：
+
+   ```bash
+   /opt/odoo/src/odoo18/odoo-bin -c /opt/odoo/etc/odoo-dev.conf -d odoo18dev \
+     --i18n-import=/mnt/d/_projects/.../addons_custom/jewelry_product_config/i18n/zh_CN.po \
+     --language=zh_CN --modules=jewelry_product_config --stop-after-init
+   ```
+
+   其他语言/模块同理。
+3. **UI 导入**：设置 → 翻译 → 应用术语 → 导入翻译。
+
+> **当你改了源码里可翻译文本**（新增菜单、视图文字、Python `_()` 等），需要：
+>
+> * 重新执行“**导出翻译**”（或在开发者模式中：设置 → 翻译 → **更新术语**，选择模块），然后
+> * 再合并到对应 `po` 并导入/升级模块。
+
+---
+
+# 5. 验证与切换语言
+
+* 用户的“偏好设置”→ 语言 切换；或者在系统“语言”列表里点“翻译术语”查看。
+* 菜单、动作、视图、QWeb 模板、报表、选择项标签等都应该切换生效。
+* 若某些是**数据记录**（如你在安装后新手动创建的 `product.attribute` / `product.attribute.value`），请用 **设置 → 翻译 → 应用术语 → 导出/导入** 对应模型的术语，或进入记录表单，点“翻译”图标（小地球）逐条翻译。
+
+---
+
+# 6. 你这三个模块的建议清单（落地）
+
+1. 在 `addons_custom/jewelry_product_config` 里：
+
+   * 所有视图 XML 中出现的中文/英文固定文本统一成英文（基准），必要时加 `translate="true"`。
+   * 所有 Python 中面向用户的提示/报错用 `_()`。
+   * 需要多语言的字段加 `translate=True`（例如“款式描述”、“材质描述”等）。
+   * 新建 `i18n/zh_CN.po`、`i18n/ja_JP.po` 并填充常见术语：成色、主石、净金重、石重、证书号、工费、金价 等。
+2. 在 `addons_custom/jewelry_menu_sale`、`addons_custom/jewelry_menu_stock`：
+
+   * 菜单、动作名称、按钮标签、向导提示都做同样处理；
+   * 报表/QWeb 模板中用 `_('xxx')` 包裹文本，或者确保模板默认可翻；
+   * 导出 `.pot` → 生成/更新 `zh_CN.po` & `ja_JP.po` → 导入/升级模块。
+3. 做一次**全局回归**：切到 `zh_CN` 与 `ja_JP`，检查 POS/库存/销售菜单与表单是否都翻好；不对的地方在 PO 再补。
+
+---
+
+# 7. 常见坑位与排查
+
+* **看得见却不生效**：没有放到 `i18n/` 或没有“升级模块/导入翻译”。
+* **选择项没翻**：这类会被抓取为 selection 的标签，确保重新“更新术语 + 合并 PO + 导入”。
+* **记录数据没翻**：这是**记录值**（需 `translate=True` 或在表单点“翻译”逐条维护；或从“应用术语”导出/导入该模型）。
+* **多环境**：DEV/UAT/PRO 数据不同，UAT/PRO 需要**再次导入翻译**或升级模块；不要只在 DEV 导入。
+* **缓存**：有时候需要刷新页面/切换语言再切回；前端缓存与翻译缓存更新后才显示。
+
+---
+
+# 8. 一条命令批量生成三模块模板（可选）
+
+（按你的路径调整）
+
+```bash
+MODS=("jewelry_product_config" "jewelry_menu_sale" "jewelry_menu_stock")
+BASE="/mnt/d/_projects/odoo18-chowtaiking.github/addons_custom"
+for m in "${MODS[@]}"; do
+  /opt/odoo/src/odoo18/odoo-bin -c /opt/odoo/etc/odoo-dev.conf -d odoo18dev \
+    --i18n-export="${BASE}/${m}/i18n/${m}.pot" \
+    --modules="${m}" --language=en_US --format=pot --keep-empty --stop-after-init
+done
+```
+
+---
+
+需要的话，我可以帮你把三个模块当前的视图与 Python 扫一遍，列出**所有会进入翻译**的文本清单，直接生成初稿 `zh_CN.po / ja_JP.po` 让你填充。
 
 
 
