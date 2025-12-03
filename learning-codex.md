@@ -151,7 +151,12 @@ source "$HOME/.cargo/env"
 rustup component add rustfmt
 rustup component add clippy
 
+# 安装
+sudo apt update
+sudo apt install -y pkg-config libssl-dev build-essential
+
 # Build Codex.
+cargo clean
 cargo build
 
 # Launch the TUI with a sample prompt.
@@ -167,6 +172,7 @@ cargo run --bin codex -- "explain this codebase to me"
 
 ```bash
 cargo run --bin codex -- "explain this codebase to me"
+cargo run --bin codex -- "你是谁"
 ```
 
 这里 Cargo 做了三件事：

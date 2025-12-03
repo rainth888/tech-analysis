@@ -1523,7 +1523,60 @@ Show branches this commit is on
 
 ----------------------------------------------------------------------------------------------------------------
 
+这是 Git 提示你**当前本地分支没有关联远程分支**，导致无法直接执行 `git pull`。
 
+---
+
+### 问题原因
+你正在 `Branch_c810e7d7` 分支上，但这个分支**没有设置上游跟踪分支**（upstream），所以 Git 不知道要从远程拉取哪个分支的更新。
+
+---
+
+### 解决方案（二选一）
+
+#### 方案1：临时拉取（单次有效）
+```bash
+git pull origin Branch_c810e7d7
+```
+这会从远程 `origin` 拉取 `Branch_c810e7d7` 分支并合并，但下次仍需指定分支名。
+
+#### 方案2：永久设置跟踪（推荐）
+```bash
+git branch --set-upstream-to=origin/Branch_c810e7d7 Branch_c810e7d7
+```
+设置后，以后直接执行 `git pull` 或 `git push` 就无需再指定分支。
+
+---
+
+### 验证设置
+```bash
+# 查看当前分支的跟踪关系
+git branch -vv
+
+# 输出示例：
+# * Branch_c810e7d7  a1b2c3d [origin/Branch_c810e7d7] Your commit message
+#   main             e4f5g6h [origin/main] Another commit
+```
+如果看到 `[origin/Branch_c810e7d7]` 说明设置成功。
+
+---
+
+### 快速修复命令
+如果你不确定当前分支名，使用这个通用命令：
+```bash
+git branch --set-upstream-to=origin/$(git branch --show-current) $(git branch --show-current)
+```
+
+---
+
+### 为什么会出现这个问题？
+
+通常是因为：
+1. 本地分支是手动创建的，不是从远程检出的
+2. 克隆仓库时只克隆了默认分支
+3. 切换分支时使用了 `git checkout -b branchname` 而非 `git checkout branchname`（后者会自动建立跟踪）
+
+**一句话总结**：运行 `git branch --set-upstream-to=origin/Branch_c810e7d7 Branch_c810e7d7` 后，以后直接用 `git pull` 即可。
 
 
 
