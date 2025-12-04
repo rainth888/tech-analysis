@@ -159,6 +159,9 @@ sudo apt install -y pkg-config libssl-dev build-essential
 cargo clean
 cargo build
 
+# 2. 构建 release 版本
+cargo build --release
+
 # Launch the TUI with a sample prompt.
 cargo run --bin codex -- "explain this codebase to me"
 ```
@@ -256,6 +259,7 @@ codex-rs/target/release/codex-exec
 
 ```bash
 mkdir -p ~/.local/bin
+
 ```
 
 ---
@@ -270,6 +274,11 @@ ln -s ~/codex/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
 
 ln -s /mnt/e/_projects/codex-cli/codex-rs/target/release/codex ~/.local/bin/codex
 ln -s /mnt/e/_projects/codex-cli/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
+
+/mnt/e/_Projects/160-codex/codex-rs
+
+ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex ~/.local/bin/codex
+ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
 
 ```
 
@@ -300,6 +309,18 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ```bash
 source ~/.bashrc
+```
+
+```
+# 保险起见，先确保目录存在
+mkdir -p ~/.local/bin
+
+# 把 ~/.local/bin 加到 PATH（追加到 .bashrc）
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+# 让当前终端立刻生效
+source ~/.bashrc
+
 ```
 
 ---
