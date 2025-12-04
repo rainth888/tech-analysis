@@ -799,8 +799,104 @@ Show branches this commit is on
 
 ----------------------------------------------------------------------------------------------------------------
 
+# ssh访问igthub
 
+把已有私钥放到 **~/.ssh/** 并告诉 SSH/GIT 用它即可，3 步搞定：
 
+1. 拷私钥到 WSL / PowerShell 都能读的位置  
+   假设文件叫 `github_ed25519`（没扩展名也行），内容开头必须是  
+   ```
+   -----BEGIN OPENSSH PRIVATE KEY-----
+   ```
+   把它复制到  
+   ```
+   %USERPROFILE%\.ssh\   （Windows 下即 C:\Users\<你>\.ssh\）
+   ```
+   若目录不存在先 `mkdir %USERPROFILE%\.ssh`。
+
+2. 设置权限（WSL 必须，Windows 可跳过）  
+   在 WSL 里执行  
+   ```bash
+   chmod 600 /mnt/c/Users/<你>/.ssh/github_ed25519
+   ```
+
+3. 让 GIT 使用这把密钥  
+   法① 临时指定（最稳，不影响别的库）  
+   ```powershell
+   set GIT_SSH_COMMAND=ssh -i "%USERPROFILE%\.ssh\github_ed25519"
+   git clone git@github.com:你的帐号/仓库.git
+   ```
+   法② 写 ~/.ssh/config（长期生效）  
+   新建/编辑 `%USERPROFILE%\.ssh\config`，加一段  
+   ```
+   Host github.com
+       HostName github.com
+       User git
+       IdentityFile ~/.ssh/github_ed25519
+   ```
+   以后任何 `git@github.com:...` 都会自动用这把钥匙。
+
+验证  
+```powershell
+ssh -T git@github.com
+```
+看到  
+```
+Hi <你的帐号>! You've successfully authenticated...
+```
+
+## 问题解决：
+
+错误信息意思  
+TortoiseGit 默认调用它自带的 **TortoiseGitPlink.exe**，而这个 Plink **找不到能用的私钥**，于是 GitHub 直接拒绝。
+
+解决思路：让 TortoiseGit 读到你的私钥即可。下面给出 **3 种常用做法**，任选其一。
+
+--------------------------------------------------
+做法 1：把已有 OpenSSH 私钥转换成 PuTTY 格式，并装进 Pageant（最正规）
+
+1. 找到你的私钥文件，例如  
+   `C:\Users\Administrator\.ssh\github_ed25519`
+
+2. 打开 **PuTTYgen**（装 TortoiseGit 时自带）  
+   - Load → 选 *All Files* → 打开 `github_ed25519`  
+   - 提示 “Successfully imported” → Save private key → 存成 `github_ed25519.ppk`
+
+3. 启动 **Pageant**（开始菜单搜得到）  
+   - 右下角托盘图标 → Add Key → 选中刚才的 `github_ed25519.ppk`
+
+4. 再克隆 / 推送，不再弹错。
+
+--------------------------------------------------
+做法 2：告诉 TortoiseGit “别用 Plink，用 Windows OpenSSH”
+
+1. 在任意文件夹空白处  
+   右键 → TortoiseGit → Settings → Network  
+2. SSH client 里把  
+   `TortoiseGitPlink.exe` 改成  
+   `C:\Windows\System32\OpenSSH\ssh.exe`  
+3. 确认。  
+以后就走系统自带的 OpenSSH，它会自动读取 `%USERPROFILE%\.ssh\` 下的密钥。
+
+--------------------------------------------------
+做法 3：临时指定密钥文件（不想转 ppk 也不想改全局）
+
+1. 还是 Settings → Network  
+2. 把 SSH client 保持 `TortoiseGitPlink.exe` 不动，在  
+   “SSH → Auth” 页面 或 克隆界面的 “Advanced (T)” → “Auth”  
+   里直接浏览指定你的 `.ppk` 文件即可。
+
+--------------------------------------------------
+验证
+
+搞定后，在文件夹里  
+右键 → Git Sync / Pull / Push，  
+或重新执行
+```powershell
+git.exe clone --progress -v git@github.com:rainth888/g00.git E:\g
+```
+不再出现  
+“No supported authentication methods available” 即成功。
 
 
 
