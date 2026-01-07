@@ -1,0 +1,6 @@
+2026/01/06-10:56:49.667 e474 Reusing MANIFEST E:\temp\20251225\chrome_profile\Default\IndexedDB\https_www.douban.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/01/06-10:56:49.668 e474 Recovering log #3
+2026/01/06-10:56:49.725 e474 Reusing old log E:\temp\20251225\chrome_profile\Default\IndexedDB\https_www.douban.com_0.indexeddb.leveldb/000003.log 
+2026/01/06-11:10:24.796 e77c Level-0 table #5: started
+2026/01/06-11:10:24.836 e77c Level-0 table #5: 944167 bytes OK
+2026/01/06-11:10:24.839 e77c Delete type=0 #3

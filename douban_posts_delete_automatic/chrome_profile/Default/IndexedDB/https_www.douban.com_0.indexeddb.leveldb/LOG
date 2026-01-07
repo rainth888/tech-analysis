@@ -1,0 +1,12 @@
+2026/01/06-11:51:46.268 f44c Reusing MANIFEST E:\temp\20251225\chrome_profile\Default\IndexedDB\https_www.douban.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/01/06-11:51:46.269 f44c Recovering log #4
+2026/01/06-11:51:46.317 f44c Reusing old log E:\temp\20251225\chrome_profile\Default\IndexedDB\https_www.douban.com_0.indexeddb.leveldb/000004.log 
+2026/01/06-12:00:03.976 8e34 Level-0 table #8: started
+2026/01/06-12:00:04.021 8e34 Level-0 table #8: 953173 bytes OK
+2026/01/06-12:00:04.022 8e34 Delete type=0 #4
+2026/01/06-12:00:18.416 b05c Compacting 1@1 + 1@2 files
+2026/01/06-12:00:18.464 b05c Generated table #9@1: 4265 keys, 85903 bytes
+2026/01/06-12:00:18.464 b05c Compacted 1@1 + 1@2 files => 85903 bytes
+2026/01/06-12:00:18.465 b05c compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/01/06-12:00:18.466 b05c Delete type=2 #5
+2026/01/06-12:00:18.466 b05c Delete type=2 #8
