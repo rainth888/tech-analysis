@@ -1523,68 +1523,125 @@ Show branches this commit is on
 
 ----------------------------------------------------------------------------------------------------------------
 
-这是 Git 提示你**当前本地分支没有关联远程分支**，导致无法直接执行 `git pull`。
+# ssh访问igthub
 
----
 
-### 问题原因
-你正在 `Branch_c810e7d7` 分支上，但这个分支**没有设置上游跟踪分支**（upstream），所以 Git 不知道要从远程拉取哪个分支的更新。
+把已有私钥放到 **~/.ssh/** 并告诉 SSH/GIT 用它即可，3 步搞定：
 
----
 
-### 解决方案（二选一）
 
-#### 方案1：临时拉取（单次有效）
-```bash
-git pull origin Branch_c810e7d7
+1. 拷私钥到 WSL / PowerShell 都能读的位置  
+   假设文件叫 `github_ed25519`（没扩展名也行），内容开头必须是  
+   ```
+   -----BEGIN OPENSSH PRIVATE KEY-----
+   ```
+   把它复制到  
+   ```
+   %USERPROFILE%\.ssh\   （Windows 下即 C:\Users\<你>\.ssh\）
+   ```
+   若目录不存在先 `mkdir %USERPROFILE%\.ssh`。
+
+
+2. 设置权限（WSL 必须，Windows 可跳过）  
+   在 WSL 里执行  
+   ```bash
+   chmod 600 /mnt/c/Users/<你>/.ssh/github_ed25519
+   ```
+
+
+3. 让 GIT 使用这把密钥  
+   法① 临时指定（最稳，不影响别的库）  
+   ```powershell
+   set GIT_SSH_COMMAND=ssh -i "%USERPROFILE%\.ssh\github_ed25519"
+   git clone git@github.com:你的帐号/仓库.git
+   ```
+   法② 写 ~/.ssh/config（长期生效）  
+   新建/编辑 `%USERPROFILE%\.ssh\config`，加一段  
+   ```
+   Host github.com
+       HostName github.com
+       User git
+       IdentityFile ~/.ssh/github_ed25519
+   ```
+   以后任何 `git@github.com:...` 都会自动用这把钥匙。
+
+
+
+
+验证  
+```powershell
+ssh -T git@github.com
 ```
-这会从远程 `origin` 拉取 `Branch_c810e7d7` 分支并合并，但下次仍需指定分支名。
-
-#### 方案2：永久设置跟踪（推荐）
-```bash
-git branch --set-upstream-to=origin/Branch_c810e7d7 Branch_c810e7d7
+看到  
 ```
-设置后，以后直接执行 `git pull` 或 `git push` 就无需再指定分支。
-
----
-
-### 验证设置
-```bash
-# 查看当前分支的跟踪关系
-git branch -vv
-
-# 输出示例：
-# * Branch_c810e7d7  a1b2c3d [origin/Branch_c810e7d7] Your commit message
-#   main             e4f5g6h [origin/main] Another commit
-```
-如果看到 `[origin/Branch_c810e7d7]` 说明设置成功。
-
----
-
-### 快速修复命令
-如果你不确定当前分支名，使用这个通用命令：
-```bash
-git branch --set-upstream-to=origin/$(git branch --show-current) $(git branch --show-current)
+Hi <你的帐号>! You've successfully authenticated...
 ```
 
----
 
-### 为什么会出现这个问题？
-
-通常是因为：
-1. 本地分支是手动创建的，不是从远程检出的
-2. 克隆仓库时只克隆了默认分支
-3. 切换分支时使用了 `git checkout -b branchname` 而非 `git checkout branchname`（后者会自动建立跟踪）
-
-**一句话总结**：运行 `git branch --set-upstream-to=origin/Branch_c810e7d7 Branch_c810e7d7` 后，以后直接用 `git pull` 即可。
+## 问题解决：
 
 
 
 
 
 
+错误信息意思  
+TortoiseGit 默认调用它自带的 **TortoiseGitPlink.exe**，而这个 Plink **找不到能用的私钥**，于是 GitHub 直接拒绝。
 
-----------------------------------------------------------------------------------------------------------------
+
+解决思路：让 TortoiseGit 读到你的私钥即可。下面给出 **3 种常用做法**，任选其一。
+
+--------------------------------------------------
+做法 1：把已有 OpenSSH 私钥转换成 PuTTY 格式，并装进 Pageant（最正规）
+
+1. 找到你的私钥文件，例如  
+   `C:\Users\Administrator\.ssh\github_ed25519`
+
+2. 打开 **PuTTYgen**（装 TortoiseGit 时自带）  
+   - Load → 选 *All Files* → 打开 `github_ed25519`  
+   - 提示 “Successfully imported” → Save private key → 存成 `github_ed25519.ppk`
+
+3. 启动 **Pageant**（开始菜单搜得到）  
+   - 右下角托盘图标 → Add Key → 选中刚才的 `github_ed25519.ppk`
+
+4. 再克隆 / 推送，不再弹错。
+
+--------------------------------------------------
+做法 2：告诉 TortoiseGit “别用 Plink，用 Windows OpenSSH”
+
+1. 在任意文件夹空白处  
+   右键 → TortoiseGit → Settings → Network  
+2. SSH client 里把  
+   `TortoiseGitPlink.exe` 改成  
+   `C:\Windows\System32\OpenSSH\ssh.exe`  
+3. 确认。  
+以后就走系统自带的 OpenSSH，它会自动读取 `%USERPROFILE%\.ssh\` 下的密钥。
+
+--------------------------------------------------
+做法 3：临时指定密钥文件（不想转 ppk 也不想改全局）
+
+1. 还是 Settings → Network  
+2. 把 SSH client 保持 `TortoiseGitPlink.exe` 不动，在  
+   “SSH → Auth” 页面 或 克隆界面的 “Advanced (T)” → “Auth”  
+   里直接浏览指定你的 `.ppk` 文件即可。
+
+--------------------------------------------------
+验证
+
+搞定后，在文件夹里  
+右键 → Git Sync / Pull / Push，  
+或重新执行
+```powershell
+git.exe clone --progress -v git@github.com:rainth888/g00.git E:\g
+```
+不再出现  
+“No supported authentication methods available” 即成功。
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------
 
 
 
