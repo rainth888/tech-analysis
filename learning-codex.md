@@ -280,6 +280,11 @@ ln -s /mnt/e/_projects/codex-cli/codex-rs/target/release/codex-exec ~/.local/bin
 ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex ~/.local/bin/codex
 ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
 
+~/work/codex/codex-rs
+
+ln -s ~/work/codex/codex-rs/target/release/codex ~/.local/bin/codex
+ln -s ~/work/codex/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
+
 ```
 
 ### 方法 B：直接复制
