@@ -748,3 +748,408 @@ WordPress 已远非“博客程序”——在插件、主题、REST/GraphQL、�
 
 
 
+#  开始执行wordpress
+
+现在需要创建一个国际站点，我需要从零开始，我对wordpress完全不了解。
+给我一个全流程详细的执行过程说明包括系统环境运行、源代码下载、代码部署、相关插件分析安装等。
+
+
+# -------------------------------------------------------------------------
+
+下面我按你的真实模式（**VPS：PROD + UAT；本地：WSL DEV；非 Docker**）分别给出 **3 套“下载 WordPress 核心 + Git 管理 + 部署/更新流程”**。
+
+> 你最后一行写的是“dev环境…git方案”重复了一次；我这里按行业常规理解为你想要 **DEV / UAT / PROD** 三套。如果你确实要两套 DEV，我也能按第二套 DEV（例如 dev2）再拆一版。
+
+---
+
+# 一、DEV（本地 WSL）方案：下载核心代码 + 本地 Git（只管 wp-content）
+
+目标：WSL 里跑完整 WordPress（core 不进 Git），你开发的代码（自研插件/子主题）放 Git，最好“改代码立刻生效”。
+
+## 1) 建议目录（WSL）
+
+* Git 仓库：`/home/bill/projects/wp-shop/`
+* 本地站点（WP core 安装目录）：`/srv/www/wp_shop_dev/`
+
+Git 仓库结构（只放你维护的）：
+
+```
+/home/bill/projects/wp-shop/
+├─ app/
+│  └─ wp-content/
+│     ├─ mu-plugins/
+│     ├─ plugins/
+│     │  └─ your-custom-plugin/
+│     └─ themes/
+│        └─ your-child-theme/
+├─ infra/
+│  └─ scripts/
+│     ├─ dev_init_wsl.sh
+│     └─ dev_link_code.sh
+└─ .gitignore
+```
+
+本地站点目录（完整 WordPress core + wp-content/uploads 等）：
+
+```
+/srv/www/wp_shop_dev/
+├─ wp-admin/
+├─ wp-includes/
+├─ wp-content/
+│  ├─ uploads/        (本地数据，不进Git)
+│  ├─ plugins/
+│  └─ themes/
+└─ wp-config.php      (本地私密配置，不进Git)
+```
+
+## 2) WSL 安装运行环境（Nginx + PHP + MySQL）
+
+```bash
+sudo apt update && sudo apt -y upgrade
+sudo apt -y install nginx mysql-server unzip curl rsync git
+
+sudo apt -y install php-fpm php-mysql php-curl php-gd php-xml php-mbstring php-zip php-intl php-bcmath
+
+sudo systemctl enable --now nginx mysql
+```
+
+确认 PHP-FPM socket（后面 Nginx 要用）：
+
+```bash
+ls /run/php/
+# 你会看到类似 php8.3-fpm.sock 或 php8.2-fpm.sock
+```
+
+## 3) 安装 wp-cli（用来下载 core / 生成配置 / 安装站点）
+
+```bash
+curl -L -o /tmp/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+php /tmp/wp --info
+chmod +x /tmp/wp
+sudo mv /tmp/wp /usr/local/bin/wp
+wp --info
+```
+
+## 4) DEV：创建数据库
+
+```bash
+sudo mysql -e "CREATE DATABASE wp_shop_dev DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER 'wp_dev'@'localhost' IDENTIFIED BY 'DevStrongPassword!';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON wp_shop_dev.* TO 'wp_dev'@'localhost'; FLUSH PRIVILEGES;"
+```
+
+## 5) DEV：下载 WordPress core（不进 Git）
+
+```bash
+sudo mkdir -p /srv/www/wp_shop_dev
+sudo chown -R $USER:$USER /srv/www/wp_shop_dev
+cd /srv/www/wp_shop_dev
+
+wp core download --locale=en_US
+```
+
+## 6) DEV：生成 wp-config.php（不进 Git）并安装站点
+
+```bash
+cd /srv/www/wp_shop_dev
+
+wp config create \
+  --dbname=wp_shop_dev \
+  --dbuser=wp_dev \
+  --dbpass='DevStrongPassword!' \
+  --dbhost=localhost \
+  --dbcharset=utf8mb4 \
+  --skip-check
+
+wp config shuffle-salts
+
+wp core install \
+  --url="http://wp-shop-dev.local" \
+  --title="WP Shop DEV" \
+  --admin_user="devadmin" \
+  --admin_password="DevAdminStrongPassword!" \
+  --admin_email="dev@example.com"
+```
+
+## 7) DEV：把你 Git 里的自研代码“链接”到本地站点（推荐软链接）
+
+先清理本地站点里同名目录（第一次做）：
+
+```bash
+rm -rf /srv/www/wp_shop_dev/wp-content/plugins/your-custom-plugin
+rm -rf /srv/www/wp_shop_dev/wp-content/themes/your-child-theme
+```
+
+建立软链接（改代码立即生效）：
+
+```bash
+ln -s /home/bill/projects/wp-shop/app/wp-content/plugins/your-custom-plugin \
+  /srv/www/wp_shop_dev/wp-content/plugins/your-custom-plugin
+
+ln -s /home/bill/projects/wp-shop/app/wp-content/themes/your-child-theme \
+  /srv/www/wp_shop_dev/wp-content/themes/your-child-theme
+```
+
+> 这样：**core 与 uploads 在站点目录**；**你自研插件/主题在 Git**；本地开发体验最好。
+
+## 8) DEV：Nginx 虚拟主机（WSL 本地）
+
+创建 `/etc/nginx/sites-available/wp_shop_dev.conf`：
+
+```nginx
+server {
+    listen 80;
+    server_name wp-shop-dev.local;
+
+    root /srv/www/wp_shop_dev;
+    index index.php index.html;
+
+    client_max_body_size 64M;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        # 改成你实际看到的 socket，例如 php8.3-fpm.sock
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+
+    location ~ /\. { deny all; }
+}
+```
+
+启用：
+
+```bash
+sudo ln -s /etc/nginx/sites-available/wp_shop_dev.conf /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Windows hosts 加一条（用管理员权限编辑）：
+
+```
+127.0.0.1  wp-shop-dev.local
+```
+
+---
+
+# 二、UAT（VPS）方案：下载核心代码 + Git（服务器拉代码）+ 发布到站点
+
+目标：UAT 服务器上 **core 本地下载**；你的自研代码通过 **Git 拉取**（或通过部署脚本 rsync），再同步到站点的 `wp-content/`。
+
+## 1) UAT 建议目录
+
+* 站点目录（WordPress core）：`/var/www/wp_shop_uat/`
+* 代码仓库拉取目录（Git 工作区）：`/opt/wp-shop/repo/`（只包含你维护的 wp-content 子集）
+
+UAT 上实际站点结构：
+
+```
+/var/www/wp_shop_uat/
+├─ wp-admin/  wp-includes/  (core)
+└─ wp-content/
+   ├─ uploads/              (数据)
+   ├─ plugins/your-custom-plugin  (来自 repo 发布)
+   └─ themes/your-child-theme     (来自 repo 发布)
+```
+
+## 2) UAT：安装环境 & wp-cli（同 DEV 类似）
+
+（略，和 DEV 的 apt 安装一致；wp-cli 同样装）
+
+## 3) UAT：下载 WordPress core（不进 Git）
+
+```bash
+sudo mkdir -p /var/www/wp_shop_uat
+sudo chown -R $USER:$USER /var/www/wp_shop_uat
+cd /var/www/wp_shop_uat
+wp core download --locale=en_US
+```
+
+## 4) UAT：Git 方案（推荐“服务器 pull”）
+
+### A) 在 UAT 配置 Deploy Key（推荐）
+
+* 在 UAT 生成 SSH key：`ssh-keygen -t ed25519`
+* 把公钥加到你的 Git 仓库 Deploy Key（只读或可写按需要）
+* 然后 clone：
+
+```bash
+sudo mkdir -p /opt/wp-shop
+sudo chown -R $USER:$USER /opt/wp-shop
+cd /opt/wp-shop
+
+git clone git@your-git-host:your-org/wp-shop.git repo
+```
+
+仓库里你只放 `app/wp-content/...`（你维护的部分）。
+
+## 5) UAT：发布脚本（从 repo 同步到站点 wp-content）
+
+在 UAT 建一个脚本 `/opt/wp-shop/deploy_uat.sh`：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SITE_DIR="/var/www/wp_shop_uat"
+REPO_DIR="/opt/wp-shop/repo"
+
+cd "$REPO_DIR"
+git fetch --all
+git checkout main
+git pull --ff-only
+
+# 只同步你维护的内容到站点 wp-content
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/mu-plugins/" \
+  "$SITE_DIR/wp-content/mu-plugins/" || true
+
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/plugins/" \
+  "$SITE_DIR/wp-content/plugins/"
+
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/themes/" \
+  "$SITE_DIR/wp-content/themes/"
+
+# 权限修复（按你的运行用户调整，通常是 www-data）
+sudo chown -R www-data:www-data "$SITE_DIR/wp-content"
+sudo find "$SITE_DIR/wp-content" -type d -exec chmod 755 {} \;
+sudo find "$SITE_DIR/wp-content" -type f -exec chmod 644 {} \;
+
+echo "UAT deploy done."
+```
+
+赋权：
+
+```bash
+chmod +x /opt/wp-shop/deploy_uat.sh
+```
+
+以后每次更新 UAT：
+
+```bash
+/opt/wp-shop/deploy_uat.sh
+```
+
+---
+
+# 三、PROD（生产 VPS）方案：下载核心代码 + Git（按 tag 发布）+ 备份/回滚
+
+目标：生产环境更严格：**只发布经过 UAT 验证的版本（tag）**，发布前备份 DB + wp-content，自带回滚能力。
+
+## 1) PROD 建议目录
+
+* 站点目录：`/var/www/wp_shop_prod/`
+* Git 工作区：`/opt/wp-shop/repo/`
+* 备份目录：`/opt/wp-shop/backups/`
+
+## 2) PROD：下载 WordPress core（不进 Git）
+
+```bash
+sudo mkdir -p /var/www/wp_shop_prod
+sudo chown -R $USER:$USER /var/www/wp_shop_prod
+cd /var/www/wp_shop_prod
+wp core download --locale=en_US
+```
+
+## 3) PROD：Git 策略（强烈建议用 tag）
+
+你在本地开发完成后：
+
+* 合并到 main
+* 在通过 UAT 验证后打 tag，例如：`release-2025-12-17`
+
+生产发布就 checkout 这个 tag，不要直接追 main。
+
+## 4) PROD：生产发布脚本（带备份与维护模式）
+
+创建 `/opt/wp-shop/deploy_prod.sh`：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SITE_DIR="/var/www/wp_shop_prod"
+REPO_DIR="/opt/wp-shop/repo"
+BACKUP_DIR="/opt/wp-shop/backups"
+RELEASE_TAG="${1:-}"
+
+if [[ -z "$RELEASE_TAG" ]]; then
+  echo "Usage: deploy_prod.sh <release-tag>"
+  exit 1
+fi
+
+mkdir -p "$BACKUP_DIR"
+
+echo "[1/6] Enter maintenance mode..."
+cd "$SITE_DIR"
+sudo -u www-data wp maintenance-mode activate || true
+
+echo "[2/6] Backup DB..."
+# 这里假设你 wp-config.php 已配置好 DB；wp db export 会自动读配置
+sudo -u www-data wp db export "$BACKUP_DIR/db_${RELEASE_TAG}_$(date +%F_%H%M%S).sql"
+
+echo "[3/6] Backup wp-content (excluding cache if needed)..."
+tar -czf "$BACKUP_DIR/wp-content_${RELEASE_TAG}_$(date +%F_%H%M%S).tar.gz" -C "$SITE_DIR" wp-content
+
+echo "[4/6] Update code from git tag..."
+cd "$REPO_DIR"
+git fetch --all --tags
+git checkout "$RELEASE_TAG"
+
+echo "[5/6] Sync wp-content custom code..."
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/mu-plugins/" \
+  "$SITE_DIR/wp-content/mu-plugins/" || true
+
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/plugins/" \
+  "$SITE_DIR/wp-content/plugins/"
+
+sudo rsync -av --delete \
+  "$REPO_DIR/app/wp-content/themes/" \
+  "$SITE_DIR/wp-content/themes/"
+
+sudo chown -R www-data:www-data "$SITE_DIR/wp-content"
+sudo find "$SITE_DIR/wp-content" -type d -exec chmod 755 {} \;
+sudo find "$SITE_DIR/wp-content" -type f -exec chmod 644 {} \;
+
+echo "[6/6] Exit maintenance mode..."
+cd "$SITE_DIR"
+sudo -u www-data wp maintenance-mode deactivate || true
+
+echo "PROD deploy done: $RELEASE_TAG"
+```
+
+赋权：
+
+```bash
+sudo mkdir -p /opt/wp-shop
+sudo chown -R $USER:$USER /opt/wp-shop
+chmod +x /opt/wp-shop/deploy_prod.sh
+```
+
+发布示例：
+
+```bash
+/opt/wp-shop/deploy_prod.sh release-2025-12-17
+```
+
+> 回滚思路：
+>
+> * 用备份的 `wp-content_*.tar.gz` 恢复 wp-content
+> * 用 `wp db import` 恢复 sql
+> * Git checkout 上一个 tag 再同步一次
+
+---
+
+# 你现在只要确认两件事，我就能把路径/脚本替你“按你的环境改成最终可直接用”
+
+1. 你线上站点目录实际是：`/var/www/...` 还是你有自己习惯的路径？
+2. 你线上运行用户是 `www-data` 吗？（Nginx/PHP-FPM 通常是）
+
+不需要你解释太多，给我这两项，我就把上面三套脚本里的路径/用户统一固化成“你那套环境”的最终版（含 Nginx conf 模板、wp-cli 常用命令清单、以及 WooCommerce 自研插件的推荐骨架）。
