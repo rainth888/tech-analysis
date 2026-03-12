@@ -160,6 +160,7 @@ cargo clean
 cargo build
 
 # 2. 构建 release 版本
+cargo clean
 cargo build --release
 
 # Launch the TUI with a sample prompt.
