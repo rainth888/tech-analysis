@@ -160,6 +160,7 @@ cargo clean
 cargo build
 
 # 2. 构建 release 版本
+cargo clean
 cargo build --release
 cargo clean
 cargo build --release -j 1

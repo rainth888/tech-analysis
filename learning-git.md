@@ -1,5 +1,7 @@
-<<<<<<< HEAD
 
+# 获取当前分支
+
+git branch --show-current
 
 在 Ubuntu 22.04 下用 Git 提交代码，**从“写完文件”到“推到远程”**只需 4 步，复制即可用。
 
@@ -85,6 +87,11 @@ sudo -u odoo bash -c 'git add -A && (git diff --cached --quiet || git commit -m 
 sudo -u odoo git fetch origin Branch_uat1:Branch_uat1 && sudo -u odoo git switch Branch_uat1
 
 sudo -u odoo git fetch origin Branch_pro:Branch_pro && sudo -u odoo git switch Branch_pro
+
+sudo -u odoo git fetch origin Branch_a39b3de5:Branch_a39b3de5 && sudo -u odoo git switch Branch_a39b3de5
+
+Branch a39b3de5
+
 
 
 ------------------------------------------------
@@ -1642,8 +1649,10 @@ git.exe clone --progress -v git@github.com:rainth888/g00.git E:\g
 
 
 --------------------------------------------------------------------------------------------------------
-
-
+# 
+git add -A
+git commit -m "chore: consolidate source directories, remove legacy src/java"
+git tag -a v1.0.0-baseline -m "Clean baseline after source consolidation"
 
 
 
