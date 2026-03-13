@@ -161,6 +161,8 @@ cargo build
 
 # 2. 构建 release 版本
 cargo build --release
+cargo clean
+cargo build --release -j 1
 
 # Launch the TUI with a sample prompt.
 cargo run --bin codex -- "explain this codebase to me"
@@ -277,6 +279,7 @@ ln -s /mnt/e/_projects/codex-cli/codex-rs/target/release/codex-exec ~/.local/bin
 
 /mnt/e/_Projects/160-codex/codex-rs
 
+rm -rf ~/.local/bin/codex ~/.local/bin/codex-exec
 ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex ~/.local/bin/codex
 ln -s /mnt/e/_Projects/160-codex/codex-rs/target/release/codex-exec ~/.local/bin/codex-exec
 
