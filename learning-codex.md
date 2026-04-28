@@ -163,7 +163,13 @@ cargo build
 cargo clean
 cargo build --release
 cargo clean
+
+cd /mnt/e/_Projects/codex.ubuntu18.04/codex-rs
 cargo build --release -j 1
+
+cd /mnt/e/_Projects/codex.ubuntu24.04/codex-rs
+cargo build --release -j 1
+
 
 # Launch the TUI with a sample prompt.
 cargo run --bin codex -- "explain this codebase to me"
