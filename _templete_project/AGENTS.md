@@ -32,6 +32,7 @@ All markdown tables must have aligned columns.
 ---
 
 ## Project Overview
+- **Script Directory**: All automation scripts (such as backup and cron setup scripts) are stored in the `.\z-scripts` folder.
 
 
 
