@@ -257,20 +257,12 @@ git pull
 sudo -u odoo bash -lc '
   mkdir -p /opt/odoo/src
   cd /opt/odoo/src
-  git clone https://github.com/rai888/od.git odoo18
-'
-```
-
-当它提示：
-
-```
-Username for 'https://github.com': 你的GitHub用户名
-Password for 'https://你的GitHub用户名@github.com': 粘贴PAT（不是登录密码）
+  git clone https://***:***@github.com': 粘贴PAT（不是登录密码）
 ```
 
 > 安全小贴士：
 >
-> * **不要**把 `https://username:PAT@github.com/...` 这样直接写在命令里（会留在 shell 历史和进程列表）。
+> * **不要**把 `https://***:***@github.com/...` 这样直接写在命令里（会留在 shell 历史和进程列表）。
 > * 如需免输，给 `odoo` 用户设置凭据助手（只在可信服务器上用）：
 >
 >   ```bash
@@ -981,20 +973,12 @@ git pull
 sudo -u odoo bash -lc '
   mkdir -p /opt/odoo/src
   cd /opt/odoo/src
-  git clone https://github.com/rai888/od.git odoo18
-'
-```
-
-当它提示：
-
-```
-Username for 'https://github.com': 你的GitHub用户名
-Password for 'https://你的GitHub用户名@github.com': 粘贴PAT（不是登录密码）
+  git clone https://***:***@github.com': 粘贴PAT（不是登录密码）
 ```
 
 > 安全小贴士：
 >
-> * **不要**把 `https://username:PAT@github.com/...` 这样直接写在命令里（会留在 shell 历史和进程列表）。
+> * **不要**把 `https://***:***@github.com/...` 这样直接写在命令里（会留在 shell 历史和进程列表）。
 > * 如需免输，给 `odoo` 用户设置凭据助手（只在可信服务器上用）：
 >
 >   ```bash

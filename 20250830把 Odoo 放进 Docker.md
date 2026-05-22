@@ -19,11 +19,11 @@
 
 ```ini
 [options]
-admin_passwd = superadmin123              ; 后台管理密码（创建数据库时用）
+admin_passwd="***"              ; 后台管理密码（创建数据库时用）
 db_host = db
 db_port = 5432
 db_user = proot
-db_password = proot
+db_password="***"
 db_name = odoo                            ; 也可不写，登录页创建
 addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
 logfile = /var/log/odoo/odoo.log
@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: proot
-      POSTGRES_PASSWORD: proot
+      POSTGRES_PASSWORD: "***"
       POSTGRES_DB: odoo
     volumes:
       - ./pgdata:/var/lib/postgresql/data
