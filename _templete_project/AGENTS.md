@@ -49,3 +49,36 @@ To maintain directory cleanliness, follow these folder conventions strictly. Do 
 - **Production data mutations**: Any mutations touching production environments, live databases, or deployment streams.
 - **Complex target compilations**: Android native builds (e.g. `gradlew.bat`/`gradlew assembleDebug`), Qt builds (e.g. `qmake`, `mingw32-make`, `nmake`).
 
+---
+
+## 任务状态跟踪执行模式 (STATE.md)
+
+`STATE.md`（同目录）用于保障**跨会话任务连续性**。
+
+### 强制执行规则
+
+#### 1. 会话启动时
+- **有明确任务指令**：读取 `STATE.md` → 写入当前任务（`🔄 IN_PROGRESS`）→ 记录会话ID/开始时间 → 执行
+- **无明确任务指令**：读取 `STATE.md` →
+  - `🔄 IN_PROGRESS` → 接管继续
+  - `⏳ NEXT` 有排队 → 递补为当前任务并执行
+  - `⏸️ IDLE` → 向 USER 汇报并请求指令
+
+#### 2. 执行过程中
+- 关键里程碑时更新「当前进度」
+- 阻塞/暂停时标记 `❌ BLOCKED` / `⏸️ PAUSED` 并记录原因
+- 关键环境状态变化时，同步更新「上下文快照」
+
+#### 3. 任务完成时
+- `⏳ NEXT` 递补为 `🔄 IN_PROGRESS`
+- 回查任务源文档确定下一个 `⏳ NEXT`（不凭记忆猜测）
+- 任务源全部完成 → `⏸️ IDLE`
+
+#### 4. 状态流转
+```
+⏸️ IDLE → 🔄 IN_PROGRESS → ✅ COMPLETED → ⏳ NEXT 递补 (或 → ⏸️ IDLE)
+                           → ❌ BLOCKED  → 条件解除后恢复
+                           → ⏸️ PAUSED   → USER 反馈后恢复
+```
+
+
