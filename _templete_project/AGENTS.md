@@ -7,7 +7,7 @@ This file is the universal operating guide for coding agents working in this rep
 To maintain directory cleanliness, follow these folder conventions strictly. Do NOT place temporary scripts, random markdown files, or untracked resources directly in the root directory.
 
 - `z-docs/`: General design specifications, architecture documentation, API definitions, and protocol standards.
-- `z-logs/`: Iterative logs, change tracking, and modification records. Document every major change here (see Version Logging).
+- `z-logs/`: Iterative logs, change tracking, and modification records. Create records only under the opt-in rules in Version Logging.
 - `z-readme/`: Critical step-by-step technical guides and how-tos. Written in Chinese for team reference.
 - `z-prototype/`: Architectural prototypes, wireframes, flowcharts, or early draft implementations.
 - `z-resource/`: Static assets, reference media (images/videos), binaries, and external library distributions.
@@ -18,8 +18,8 @@ To maintain directory cleanliness, follow these folder conventions strictly. Do 
 
 ## Hard Constraints (Must Follow)
 
-1. **VERSION LOGGING**: For major architectural changes, milestone features, or when explicitly requested by the user, you should create a detailed log record inside `z-logs/` naming the file in format `YYYYMMDDHHMM_FeatureName_TestResult.md`. Include the specific **date and time** of your verification inside the log for historical tracking.
-2. **CHINESE DOCUMENTATION**: Document all critical step-by-step technical operations in Chinese under `z-readme/`.
+1. **VERSION LOGGING — USER OPT-IN ONLY**: Routine code implementation, fixes, refactoring, configuration changes, builds, and ordinary feature improvements MUST NOT automatically create modification records or technical documentation in `z-logs/`, `z-readme/`, or elsewhere. Only when a change is a major architectural change, a major milestone, or a large-scale completion may a record be useful; before creating it, explicitly ask the user whether they want a modification-record technical document. Create the document only after the user confirms, unless the user already explicitly requested that document. Keep the question and any resulting document concise to minimize token usage. If confirmed, store a detailed verification record in `z-logs/` using `YYYYMMDDHHMM_FeatureName_TestResult.md` and include the verification date and time.
+2. **CHINESE DOCUMENTATION**: Critical step-by-step technical guides belong in `z-readme/` and must be written in Chinese, but do not create them automatically for ordinary code work. Create one only when the user explicitly requests it or confirms it after the major-change prompt required above.
 3. **MARKDOWN TABLE FORMAT**: Every table in your generated or modified markdown files MUST be column-aligned. Each row in the same table must have the same visible column width. Pad space before and after the `|` separators so that they align vertically in raw text view.
 4. **SCRIPT PLACEMENT**: Any newly created shell scripts, PowerShell scripts, or automation runners must be stored in the `z-scripts/` directory.
 5. **UNSURE CRITICAL OPERATIONS**: If you are unsure whether an operation is key, critical, or risky, stop and ask the user for confirmation before proceeding.
@@ -27,6 +27,14 @@ To maintain directory cleanliness, follow these folder conventions strictly. Do 
 7. **PLANNING MODE**: Ignore/bypass Planning Mode. Do not write implementation plans (`implementation_plan.md`) or ask for user confirmation unless explicitly requested or working on massive architecture overhauls. Directly execute code analysis and modifications.
 8. **PAUSE FOR PHYSICAL/HARDWARE VERIFICATION**: Whenever verification requires checking display quality, touch feedback, audio output, or physical/hardware interactions, you must pause immediately, explain the current state to the user, and wait for their physical verification feedback before proceeding.
 9. **DOCUMENT NAMING**: All generated documents (excluding code source files and execution scripts) MUST prepend a timestamp formatted as `YYYYMMDDHHMM` (accurate to the minute, e.g., `202606171446_FileName.md`) to their filenames for sorting purposes.
+
+## Stable Main Branch Protection (Mandatory)
+
+- `main` is the stable release baseline only. Never directly modify application code, configuration, scripts, or resources on `main`, and never use `main` for new feature development, fixes, refactoring, tuning, experiments, or iterative validation.
+- Before implementing any feature, fix, or improvement, create and switch to a dedicated branch from the latest `main`, such as `feature/<name>` or `fix/<name>`. Perform all edits, builds, debugging, deployment tests, and functional or hardware acceptance on that branch.
+- Merge into `main` only after the branch has completed all required verification, hardware-dependent behavior has been physically accepted by the user when applicable, and the user has explicitly confirmed that the exact branch version is stable and approved for merging.
+- The merge must preserve the exact verified commit and resulting file tree. Do not add unverified cleanup or incidental changes during or after the merge. If a problem is found after merging, create a new fix branch, validate it, and merge it only after acceptance.
+- If the current branch is `main` and the user requests an implementation or code change, create and switch to a dedicated branch before modifying files. On `main`, only read-only inspection, stable release build/deployment/regression checks, and merging already accepted branches are allowed.
 
 ---
 
