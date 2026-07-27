@@ -30,9 +30,11 @@ To maintain directory cleanliness, follow these folder conventions strictly. Do 
 
 ## Stable Main Branch Protection (Mandatory)
 
+- Before any Git operation, run `git rev-parse --show-toplevel` and inspect the current branch to identify the actual project repository and its stable primary branch. When nested repositories exist, never mistake a parent repository's `master`, `main`, or other branch for the current project's stable branch.
 - `main` is the stable release baseline only. Never directly modify application code, configuration, scripts, or resources on `main`, and never use `main` for new feature development, fixes, refactoring, tuning, experiments, or iterative validation.
 - Before implementing any feature, fix, or improvement, create and switch to a dedicated branch from the latest `main`, such as `feature/<name>` or `fix/<name>`. Perform all edits, builds, debugging, deployment tests, and functional or hardware acceptance on that branch.
 - Merge into `main` only after the branch has completed all required verification, hardware-dependent behavior has been physically accepted by the user when applicable, and the user has explicitly confirmed that the exact branch version is stable and approved for merging.
+- Never merge a branch while verification has failed, remains incomplete, or is still waiting for user hardware acceptance.
 - The merge must preserve the exact verified commit and resulting file tree. Do not add unverified cleanup or incidental changes during or after the merge. If a problem is found after merging, create a new fix branch, validate it, and merge it only after acceptance.
 - If the current branch is `main` and the user requests an implementation or code change, create and switch to a dedicated branch before modifying files. On `main`, only read-only inspection, stable release build/deployment/regression checks, and merging already accepted branches are allowed.
 
