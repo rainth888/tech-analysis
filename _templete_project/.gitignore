@@ -51,5 +51,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Multi-environment runtime leases (lane records/config remain trackable)
+.agents/parallel/leases/
+
 # debug information files
 *.dwo
