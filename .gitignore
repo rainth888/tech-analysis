@@ -1,2 +1,5 @@
 /*.bak
 *.md.bak
+
+# 浏览器登录会话与本地用户资料不进入版本控制
+/douban_posts_delete_automatic/chrome_profile/

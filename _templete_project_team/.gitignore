@@ -1,0 +1,87 @@
+# Prerequisites & Compiled Objects
+*.d
+*.o
+*.ko
+*.obj
+*.elf
+*.ilk
+*.map
+*.exp
+*.gch
+*.pch
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.mod*
+*.cmd
+*.dwo
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Java / Maven / Gradle
+target/
+.gradle/
+build/
+*.class
+*.jar
+*.war
+*.ear
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# Python / AI Service
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Test & Coverage Artifacts
+playwright-report/
+test-results/
+coverage/
+
+# Environment & Secrets (NEVER commit real secrets)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Multi-environment runtime leases & temp sandbox (lane records/config remain trackable)
+.agents/parallel/leases/
+z-temps/*
+!z-temps/.gitkeep

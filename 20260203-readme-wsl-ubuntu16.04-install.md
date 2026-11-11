@@ -20,13 +20,13 @@ This document records the steps taken to install and configure a WSL Ubuntu 16.0
     ```
 
 ## 1. User Configuration
-**Goal**: Set up a default user `bill` with sudo privileges (password: `qwe123!@#`).
+**Goal**: Set up a default user `bill` with sudo privileges (password: `<LOCAL_WSL_PASSWORD>`).
 
 ### Steps Performed:
 1.  **Create User**:
     ```bash
     wsl -d ubuntu-16.04 useradd -m -s /bin/bash bill
-    wsl -d ubuntu-16.04 passwd bill  # Set to qwe123!@#
+    wsl -d ubuntu-16.04 passwd bill  # Set to <LOCAL_WSL_PASSWORD>
     ```
 2.  **Grant Sudo Access**:
     ```bash
@@ -61,8 +61,8 @@ Since WSL2 has a different IP than the host, we dynamically grab the host's IP f
 2.  **APT Proxy (`/etc/apt/apt.conf.d/80proxy`)**:
     Created this file to allow `sudo apt update` to work (note: hardcoded IP was used initially during setup, but dynamic is preferred if using `apt-proxy-detect` scripts, simplified here to point to host):
     ```
-    Acquire::http::Proxy "http://172.19.128.1:7890/";
-    Acquire::https::Proxy "http://172.19.128.1:7890/";
+    Acquire::http::Proxy "http://<WINDOWS_HOST_IP>:7890/";
+    Acquire::https::Proxy "http://<WINDOWS_HOST_IP>:7890/";
     ```
     *(Note: Users may need to update this IP if the WSL network changes significantly, or use the shell variable method for apt if configured).*
     

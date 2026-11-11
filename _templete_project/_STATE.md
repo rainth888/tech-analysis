@@ -2,7 +2,7 @@
 
 ## 并行活跃泳道
 
-- 当前无活跃 lane。新环境领取任务后，在此只写 `task_id / actor_id / 状态 / 一句话进度`。
+- T002 / codex-agents-zh-20261111-2148 / 🧪 AWAITING_USER_CONFIRMATION / 中文化与规则完善已写入，格式及兼容检查通过，等待用户验收。
 - 详细实时进度、`owned_paths`和资源租约以 `.agents/parallel/lanes/` 中对应 lane 为准。
 
 ## 兼容摘要（单 lane 项目可继续使用）
