@@ -1,20 +1,17 @@
-# Parallel Role Task Lane
+# 个人泳道记录格式示例（本文件只读引用）
 
-- task_id: `T000-ROLE`
-- role_id: `PM | PO | AR | BE | FE | QA | OPS | AI`
-- actor_id: `<role>-<tool-or-model>-<session-short-id>`
-- status: `TODO | IN_PROGRESS | PAUSED | AWAITING_REVIEW | AWAITING_DEPLOY | AWAITING_TEST | AWAITING_USER_CONFIRMATION | BLOCKED | COMPLETED`
-- stage: `P0 | P1 | P2 | P3 | P4 | P5 | P6 | P7`
-- branch: `<branch>`
-- starting_head: `<commit>`
-- owned_paths:
-  - `<exact-file-or-narrow-directory-within-role-OWNERS>`
-- resources:
-  - `<task-metadata | collab-board | git-index | backend-build | frontend-build | test-env | staging-env | ...>`
-- upstream_handoffs: `<HO-xxx / API-xxx / TC-xxx required before starting>`
-- output_artifacts: `<files and HO/IS/RV/CR numbers produced>`
-- stable_features: `<feature IDs in _CHECKLISTS.md and approval state, or none>`
-- last_heartbeat: `<ISO-8601 timestamp>`
-- next_action: `<next concrete action>`
-- verification: `<commands run and acceptance gates>`
-- rollback: `<safe rollback boundary; human approval required where applicable>`
+实际记录保存到 z-readme/lanes/YYYYMMDDHHMM_<TASK>-<ROLE>-<USER>-<SESSION>.md；运行锁由 team_guard 维护。
+
+- user_id：稳定人员标识
+- actor_id：本次会话唯一标识
+- role_id：PM / PO / AR / BE / FE / QA / OPS / AI
+- task_id、lane_id：任务与唯一泳道
+- branch、starting_head、worktree 标识：不记录敏感绝对目录
+- owned_paths：精确文件或以 / 结尾的窄目录
+- resources：共享构建、迁移、测试环境或元数据
+- frozen_artifacts：冻结号、版本、提交、原责任人
+- approved_changes：真实人工批准编号、目标范围与有效期
+- dependencies、verification、rollback：依赖、自检与回退
+- state、heartbeat、next_action：进度、心跳与下一步
+
+同角色多人不能复用 lane_id。源角色/用户不是人工批准接手后的必需处理人。新文档和代码由当前责任人分别冻结，冻结不等于 STABLE。

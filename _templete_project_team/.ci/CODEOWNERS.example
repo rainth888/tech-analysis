@@ -1,0 +1,11 @@
+# 非激活示例，必须由真人替换为实际平台账号/团队并放入 .github/CODEOWNERS。
+# 同一路径列出多个 owner 不等于必须全部批准。
+# /server/       @example-org/backend-reviewers
+# /web/          @example-org/frontend-reviewers
+# /web/e2e/      @example-org/qa-reviewers
+# /tests/        @example-org/qa-reviewers
+# /deploy/       @example-org/ops-reviewers
+# /AGENTS.md     @example-org/governance-reviewers
+# /.agents/      @example-org/governance-reviewers
+# /z-scripts/    @example-org/governance-reviewers
+# /z-readme/     @example-org/document-reviewers

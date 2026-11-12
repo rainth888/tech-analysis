@@ -2,8 +2,8 @@
 
 ## 使用规则
 
-1. 本文件登记用户直接发布的项目级任务，以及各阶段按规范拆解的角色任务（进入 P4 后，详细的 40+ 张迭代开发任务卡正文登记在 `docs/PLAN.md`，本文件保留阶段主任务与跨阶段专项任务）。
-2. 每个子任务必须明确唯一责任角色（`PM | PO | AR | BE | FE | QA | OPS | AI`）、前置依赖、可写路径范围与可验证的完成标准。
+1. 本文件登记用户直接发布的项目级任务，以及各阶段按规范拆解的角色任务（进入 P4 后，详细的 40+ 张迭代开发任务卡正文登记在 `z-readme/202611122304_开发计划模板.md`，本文件保留阶段主任务与跨阶段专项任务）。
+2. 每个子任务必须明确责任角色、唯一责任 user_id 与 actor_id/lane_id（`PM | PO | AR | BE | FE | QA | OPS | AI`）、前置依赖、可写路径范围与可验证的完成标准。
 3. 角色代理完成内部工作与自检后：
    - 需下游评审/测试的，发交接单（`HO-xxx`）并将子任务置为 `🧪 AWAITING_REVIEW` / `🧪 AWAITING_TEST`；
    - 需真人最终确认的，置为 `🧪 AWAITING_USER_CONFIRMATION`；
@@ -35,23 +35,27 @@
 - 前置条件：真人已将原始需求规格说明书（SRS）放入 `z-docs/`。
 - 范围：建立团队章程、目录与所有权、项目宪法初版，完成全角色需求通读笔记与启动会。
 - 角色子任务：
-  - `T000-PM`（PM）：执行 `PM-01`、`PM-02`，完善 `docs/collab/TEAM.md`、`BOARD.md`、`RISKS.md` 及 `docs/PLAN.md` 阶段里程碑。
-  - `T000-AR`（AR）：执行 `AR-01`、`AR-02`，核对仓库目录、更新 `AGENTS.md` 项目信息与 `docs/collab/OWNERS.md` 初版。
-  - `T000-PO`（PO）：执行 `PO-01`，输出 `docs/analysis/00-PO需求通读笔记.md`。
-  - `T000-BE`（BE）：执行 `BE-01`，输出 `docs/collab/notes/BE-需求通读笔记.md`。
-  - `T000-FE`（FE）：执行 `FE-01`，输出 `docs/collab/notes/FE-需求通读笔记.md`。
-  - `T000-QA`（QA）：执行 `QA-01`，输出 `docs/collab/notes/QA-需求通读笔记.md`。
-  - `T000-OPS`（OPS）：执行 `OPS-01`，输出 `docs/collab/notes/OPS-需求通读笔记.md`。
+  - `T000-PM`（PM）：执行 `PM-01`、`PM-02`，完善 `z-readme/collab/202611122304_团队成员与职责.md`、`BOARD.md`、`RISKS.md` 及 `z-readme/202611122304_开发计划模板.md` 阶段里程碑。
+  - `T000-AR`（AR）：执行 `AR-01`、`AR-02`，核对仓库目录、更新 `AGENTS.md` 项目信息与 `z-readme/collab/202611122304_文件归属与评审矩阵.md` 初版。
+  - `T000-PO`（PO）：执行 `PO-01`，输出 `z-readme/analysis/YYYYMMDDHHMM_00-PO需求通读笔记.md`。
+  - `T000-BE`（BE）：执行 `BE-01`，输出 `z-readme/collab/notes/YYYYMMDDHHMM_BE-需求通读笔记.md`。
+  - `T000-FE`（FE）：执行 `FE-01`，输出 `z-readme/collab/notes/YYYYMMDDHHMM_FE-需求通读笔记.md`。
+  - `T000-QA`（QA）：执行 `QA-01`，输出 `z-readme/collab/notes/YYYYMMDDHHMM_QA-需求通读笔记.md`。
+  - `T000-OPS`（OPS）：执行 `OPS-01`，输出 `z-readme/collab/notes/YYYYMMDDHHMM_OPS-需求通读笔记.md`。
 - 完成标准：七份产出全部落盘并通过 `z-scripts/validate_project.py` 校验，真人确认 P0 关卡通过。
 
 ### 后续阶段任务占位（随关卡推进依次激活）
 
-| 任务ID | 阶段              | 主导角色     | 核心交付物路径                                                                                   | 状态      |
-| ------ | ----------------- | ------------ | ------------------------------------------------------------------------------------------------ | --------- |
-| `T001` | P1 需求分析       | PO           | `docs/SRS-INDEX.md`、`docs/analysis/01~05`、各角色评审单 `RV-*`                                  | `⏳ TODO` |
-| `T002` | P2 架构设计       | AR           | `docs/architecture/01~02`、`CONVENTIONS.md`、`docs/adr/`、`OWNERS.md` 定稿                       | `⏳ TODO` |
-| `T003` | P3 详细设计       | BE/FE/QA/OPS | `docs/design/db,api,ui,04~08`、`docs/acceptance/`、`docs/test/测试数据*`                         | `⏳ TODO` |
-| `T004` | P4 开发计划       | PM           | `docs/PLAN.md`、`docs/PROGRESS.md`、`docs/test/测试计划.md`、`docs/ops/环境*`                    | `⏳ TODO` |
-| `T005` | P5 迭代开发       | BE/FE/QA/OPS | `server/`、`web/`、`mobile/`、`ai/`、`tests/`、`deploy/`、`.ci/`（按 `PLAN.md`）                 | `⏳ TODO` |
-| `T006` | P6 系统测试与发布 | QA / OPS     | `docs/test/系统测试与准出报告*`、`docs/ops/预发布与演练报告*`、`docs/acceptance/系统验收报告.md` | `⏳ TODO` |
-| `T007` | P7 交付与收尾     | PM 统筹      | `docs/delivery/*`、`docs/collab/项目总结.md`                                                     | `⏳ TODO` |
+| 任务ID | 阶段              | 主导角色     | 核心交付物路径                                                                                                                                   | 状态      |
+| ------ | ----------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| `T001` | P1 需求分析       | PO           | `z-readme/202611122304_需求索引模板.md`、`z-readme/analysis/01~05`、各角色评审单 `RV-*`                                                          | `⏳ TODO` |
+| `T002` | P2 架构设计       | AR           | `z-readme/architecture/01~02`、`CONVENTIONS.md`、`z-readme/adr/`、`OWNERS.md` 定稿                                                               | `⏳ TODO` |
+| `T003` | P3 详细设计       | BE/FE/QA/OPS | `z-readme/design/db,api,ui,04~08`、`z-readme/acceptance/`、`z-readme/test/测试数据*`                                                             | `⏳ TODO` |
+| `T004` | P4 开发计划       | PM           | `z-readme/202611122304_开发计划模板.md`、`z-readme/202611122304_进度看板模板.md`、`z-readme/test/YYYYMMDDHHMM_测试计划.md`、`z-readme/ops/环境*` | `⏳ TODO` |
+| `T005` | P5 迭代开发       | BE/FE/QA/OPS | `server/`、`web/`、`mobile/`、`ai/`、`tests/`、`deploy/`、`.ci/`（按 `PLAN.md`）                                                                 | `⏳ TODO` |
+| `T006` | P6 系统测试与发布 | QA / OPS     | `z-readme/test/系统测试与准出报告*`、`z-readme/ops/预发布与演练报告*`、`z-readme/acceptance/YYYYMMDDHHMM_系统验收报告.md`                        | `⏳ TODO` |
+| `T007` | P7 交付与收尾     | PM 统筹      | `z-readme/delivery/*`、`z-readme/collab/YYYYMMDDHHMM_项目总结.md`                                                                                | `⏳ TODO` |
+
+## 同角色拆分与交付
+
+同角色可拆为 Txx-BE-dev01-s01、Txx-BE-dev02-s01 等独立泳道。按精确文件和依赖拆分；运行写锁不能用整角色或同一任务号替代。每个产出责任人提交后分别冻结自己的文档、代码与配置；未冻结产出不能完成交接。

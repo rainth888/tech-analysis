@@ -1,0 +1,22 @@
+# 示例：复制到实际项目 .github/workflows/team-checks.yml 后才会启用。
+# 还须配置受保护分支、真人审批，以及实际业务构建/测试任务。
+name: team-template-checks
+on:
+  pull_request:
+  merge_group:
+permissions:
+  contents: read
+jobs:
+  template-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: 校验模板结构与固定引用
+        run: python z-scripts/validate_project.py
+      - name: 协作机制回归
+        run: python z-scripts/test_team_guard.py
+      # 本任务仅检查模板治理工具；实际项目另加业务测试与受控审批检查。
+      # 不从 PR 自带的 JSON 推定人工批准，也不把 PR 自改的校验器视为可信门禁。

@@ -3,9 +3,11 @@
 
 用法：
   py -3.11 z-scripts/validate_project.py             # 仅校验项目结构、核心文件与代码块闭合
-  py -3.11 z-scripts/validate_project.py --align     # 先对全仓库 Markdown 表格按中英文显示宽度对齐，再执行校验
+  py -3.11 z-scripts/validate_project.py --align --files readme.md  # 只格式化显式领取的文件
 """
-import sys
+import argparse
+import json
+import re
 import unicodedata
 from pathlib import Path
 
@@ -17,7 +19,10 @@ REQUIRED_PATHS = [
     "_TASKLISTS.md",
     "_STATE_HISTORY.md",
     "_CHECKLISTS.md",
-    ".agents/parallel/config.yaml",
+    ".agents/parallel/policy.json",
+    "z-scripts/team_guard.py",
+    "z-scripts/test_team_guard.py",
+    "z-readme/202611122304_冻结并行开发与Git合并操作手册.md",
     ".agents/parallel/lanes/TEMPLATE.md",
     ".agents/roles/PM.md",
     ".agents/roles/PO.md",
@@ -44,17 +49,17 @@ REQUIRED_PATHS = [
     ".agents/workflows/accept.md",
     ".agents/workflows/cr.md",
     ".agents/workflows/wrapup.md",
-    "docs/PLAN.md",
-    "docs/PROGRESS.md",
-    "docs/SRS-INDEX.md",
-    "docs/collab/TEAM.md",
-    "docs/collab/OWNERS.md",
-    "docs/collab/BOARD.md",
-    "docs/collab/RISKS.md",
-    "docs/collab/handoff/TEMPLATE-HO.md",
-    "docs/collab/issues/TEMPLATE-IS.md",
-    "docs/collab/reviews/TEMPLATE-RV.md",
-    "docs/collab/changes/TEMPLATE-CR.md",
+    "z-readme/202611122304_开发计划模板.md",
+    "z-readme/202611122304_进度看板模板.md",
+    "z-readme/202611122304_需求索引模板.md",
+    "z-readme/collab/202611122304_团队成员与职责.md",
+    "z-readme/collab/202611122304_文件归属与评审矩阵.md",
+    "z-readme/collab/202611122304_协作看板模板.md",
+    "z-readme/collab/202611122304_风险登记模板.md",
+    "z-readme/collab/handoff/202611122304_成果冻结交接模板.md",
+    "z-readme/collab/issues/202611122304_问题与缺陷模板.md",
+    "z-readme/collab/reviews/202611122304_独立评审模板.md",
+    "z-readme/collab/changes/202611122304_变更与人工解冻申请模板.md",
     "z-readme/00_团队项目模板使用与全员就位指南.md",
     "z-readme/01_大项目全技术规范与架构文档内容规范.md",
     "z-readme/02_各岗位角色项目文件夹与工作空间规范.md",
@@ -174,17 +179,31 @@ def align_tables(text: str) -> str:
 
 
 def main() -> int:
-    do_align = "--align" in sys.argv
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--align", action="store_true")
+    parser.add_argument("--files", nargs="+")
+    args = parser.parse_args()
+    if args.align and not args.files:
+        parser.error("--align 必须配合 --files 显式列出已领取文件，禁止全仓格式化")
+    selected = set()
+    for value in args.files or []:
+        path = ROOT / value
+        if (path.is_symlink() or not path.is_file() or path.suffix != ".md" or
+                not path.resolve().is_relative_to(ROOT.resolve()) or
+                any(p.is_symlink() for p in path.parents if p != ROOT.parent)):
+            parser.error("文件必须是模板内的普通 Markdown 文件：" + value)
+        selected.add(path.resolve())
     errors = []
     for rel in REQUIRED_PATHS:
         if not (ROOT / rel).exists():
             errors.append(f"MISSING required file: {rel}")
 
-    md_files = sorted(p for p in ROOT.rglob("*.md") if ".git" not in p.parts)
+    md_files = sorted(p for p in ROOT.rglob("*.md") if not set(p.parts) &
+                      {".git", "node_modules", "z-temps", ".venv", "leases"})
     aligned_count = 0
     for md in md_files:
         raw = md.read_text(encoding="utf-8")
-        if do_align:
+        if args.align and md.resolve() in selected:
             new_text = align_tables(raw)
             if new_text != raw.replace("\r\n", "\n"):
                 md.write_text(new_text, encoding="utf-8")
@@ -193,6 +212,19 @@ def main() -> int:
         fences = sum(1 for l in raw.splitlines() if l.lstrip().startswith("```"))
         if fences % 2 != 0:
             errors.append(f"UNCLOSED code fence ({fences}) in {md.relative_to(ROOT)}")
+        for ref in re.findall(r'`(z-readme/[^`\n]*?/\d{12}_[^`\n]+\.md|z-readme/\d{12}_[^`\n]+\.md)`', raw):
+            if not (ROOT / ref).exists():
+                errors.append(f"MISSING dated reference: {ref} in {md.relative_to(ROOT)}")
+
+    try:
+        policy = json.loads((ROOT / ".agents/parallel/policy.json").read_text(encoding="utf-8"))
+        seen = set()
+        for rule in policy["paths"]:
+            if rule["path"].casefold() in seen or not set(rule["roles"]) <= set(policy["roles"]):
+                errors.append("INVALID or DUPLICATE policy rule: " + rule["path"])
+            seen.add(rule["path"].casefold())
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        errors.append("INVALID policy: " + str(e))
 
     print(f"[validate_project] Checked {len(md_files)} markdown files (aligned {aligned_count}).")
     if errors:

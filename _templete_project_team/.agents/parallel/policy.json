@@ -1,0 +1,265 @@
+{
+  "version": 1,
+  "roles": [
+    "PM",
+    "PO",
+    "AR",
+    "BE",
+    "FE",
+    "QA",
+    "OPS",
+    "AI"
+  ],
+  "protected_branches": [
+    "main",
+    "master",
+    "develop"
+  ],
+  "paths": [
+    {
+      "path": "AGENTS.md",
+      "roles": [
+        "AR"
+      ]
+    },
+    {
+      "path": "_STATE.md",
+      "roles": [
+        "PM"
+      ]
+    },
+    {
+      "path": "_TASKLISTS.md",
+      "roles": [
+        "PM"
+      ]
+    },
+    {
+      "path": "_STATE_HISTORY.md",
+      "roles": [
+        "PM"
+      ]
+    },
+    {
+      "path": "_CHECKLISTS.md",
+      "roles": [
+        "AR",
+        "QA"
+      ]
+    },
+    {
+      "path": ".agents/",
+      "roles": [
+        "AR"
+      ]
+    },
+    {
+      "path": "z-scripts/",
+      "roles": [
+        "AR",
+        "QA",
+        "OPS"
+      ]
+    },
+    {
+      "path": "server/",
+      "roles": [
+        "BE"
+      ]
+    },
+    {
+      "path": "web/",
+      "roles": [
+        "FE"
+      ]
+    },
+    {
+      "path": "web/e2e/",
+      "roles": [
+        "QA"
+      ]
+    },
+    {
+      "path": "mobile/",
+      "roles": [
+        "FE"
+      ]
+    },
+    {
+      "path": "ai/",
+      "roles": [
+        "AI"
+      ]
+    },
+    {
+      "path": "tests/",
+      "roles": [
+        "QA"
+      ]
+    },
+    {
+      "path": "deploy/",
+      "roles": [
+        "OPS"
+      ]
+    },
+    {
+      "path": ".ci/",
+      "roles": [
+        "OPS"
+      ]
+    },
+    {
+      "path": ".github/",
+      "roles": [
+        "OPS"
+      ]
+    },
+    {
+      "path": "z-readme/",
+      "roles": [
+        "PM",
+        "PO",
+        "AR",
+        "BE",
+        "FE",
+        "QA",
+        "OPS",
+        "AI"
+      ]
+    },
+    {
+      "path": "z-readme/analysis/",
+      "roles": [
+        "PO",
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/architecture/",
+      "roles": [
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/adr/",
+      "roles": [
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/design/db/",
+      "roles": [
+        "BE"
+      ]
+    },
+    {
+      "path": "z-readme/design/api/",
+      "roles": [
+        "BE",
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/design/ui/",
+      "roles": [
+        "FE"
+      ]
+    },
+    {
+      "path": "z-readme/design/ai/",
+      "roles": [
+        "AI",
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/test/",
+      "roles": [
+        "QA"
+      ]
+    },
+    {
+      "path": "z-readme/ops/",
+      "roles": [
+        "OPS"
+      ]
+    },
+    {
+      "path": "z-readme/acceptance/",
+      "roles": [
+        "PO"
+      ]
+    },
+    {
+      "path": "readme.md",
+      "roles": [
+        "AR",
+        "PM"
+      ]
+    },
+    {
+      "path": ".gitignore",
+      "roles": [
+        "AR",
+        "OPS"
+      ]
+    },
+    {
+      "path": "z-readme/roles/PM/",
+      "roles": [
+        "PM"
+      ]
+    },
+    {
+      "path": "z-readme/roles/PO/",
+      "roles": [
+        "PO"
+      ]
+    },
+    {
+      "path": "z-readme/roles/AR/",
+      "roles": [
+        "AR"
+      ]
+    },
+    {
+      "path": "z-readme/roles/BE/",
+      "roles": [
+        "BE"
+      ]
+    },
+    {
+      "path": "z-readme/roles/FE/",
+      "roles": [
+        "FE"
+      ]
+    },
+    {
+      "path": "z-readme/roles/QA/",
+      "roles": [
+        "QA"
+      ]
+    },
+    {
+      "path": "z-readme/roles/OPS/",
+      "roles": [
+        "OPS"
+      ]
+    },
+    {
+      "path": "z-readme/roles/AI/",
+      "roles": [
+        "AI"
+      ]
+    }
+  ],
+  "metadata_paths": [
+    "AGENTS.md",
+    "_STATE.md",
+    "_TASKLISTS.md",
+    "_STATE_HISTORY.md",
+    "_CHECKLISTS.md",
+    ".agents/parallel/policy.json"
+  ]
+}

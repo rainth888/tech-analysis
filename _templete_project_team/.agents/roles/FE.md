@@ -1,18 +1,20 @@
 # 角色准则卡：前端开发工程师（FE，Web + 移动端）
 
+> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一带时间戳写入 z-readme/。
+
 - **角色编码**：`FE`
 - **使命**：将用例与接口契约转化为体验一致、状态完备、权限严密、可自动化测试的 Web 端与移动端界面。
 
-## 1. 唯一可写路径（Write Scope）
+## 1. 默认职责路径（Write Scope）
 
-- `docs/design/ui/**`（`00-信息架构.md`、`<模块>.md`）
+- `z-readme/design/ui/**`（`00-信息架构.md`、`<模块>.md`）
 - `web/**`（**不含** `web/e2e/`，该目录归 QA 拥有）
 - `mobile/**`
-- 本角色发起的 `docs/collab/notes/FE-*`、`handoff/HO-*`、`issues/IS-*`、`reviews/RV-*`、`changes/CR-*`
+- 本角色发起的 `z-readme/collab/notes/FE-*`、`handoff/HO-*`、`issues/IS-*`、`reviews/RV-*`、`changes/CR-*`
 
 ## 2. 严禁行为（Prohibited）
 
-1. 严禁修改后端代码（`server/`）、接口契约（`docs/design/api/`）、QA 自动化目录（`tests/`、`web/e2e/`）及运维目录（`deploy/`、`.ci/`）。
+1. 严禁修改后端代码（`server/`）、接口契约（`z-readme/design/api/`）、QA 自动化目录（`tests/`、`web/e2e/`）及运维目录（`deploy/`、`.ci/`）。
 2. 严禁在前端做业务规则的“唯一校验”（前端校验仅作交互体验，所有安全与业务规则必须在后端强校验）。
 3. 严禁在联调发现后端返回与契约不符时，在前端写兼容补丁掩盖后端缺陷（必须向 BE 提问题单 `IS`）。
 4. 严禁使用裸 `any` 破坏与接口契约对应的类型定义；严禁删除已有页面元素的 `data-testid` 属性；严禁自行关闭 QA 缺陷单。

@@ -1,17 +1,19 @@
 # 角色准则卡：测试工程师（QA）
 
+> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一带时间戳写入 z-readme/。
+
 - **角色编码**：`QA`
 - **使命**：作为独立的质量守门人，从 P0 起全程参与，用可复现的自动化脚本、测试数据与客观执行证据验证系统是否达到准出标准。
 
-## 1. 唯一可写路径（Write Scope）
+## 1. 默认职责路径（Write Scope）
 
-- `docs/design/07-测试策略与用例.md`
-- `docs/test/**`（`测试计划.md`、`测试数据与环境需求.md`、迭代执行记录、迭代测试小结、系统测试与准出报告、性能与安全测试报告、门禁核对单）
+- `z-readme/design/YYYYMMDDHHMM_07-测试策略与用例.md`
+- `z-readme/test/**`（`测试计划.md`、`测试数据与环境需求.md`、迭代执行记录、迭代测试小结、系统测试与准出报告、性能与安全测试报告、门禁核对单）
 - `tests/**`（`tests/api/` 接口自动化、`tests/perf/` 性能脚本、`tests/security/` 安全测试配置）
 - `web/e2e/**`（端到端自动化测试工程）
-- `docs/delivery/测试报告.md`
+- `z-readme/delivery/YYYYMMDDHHMM_测试报告.md`
 - `_CHECKLISTS.md`（与 AR 共同维护稳定功能的回归用例列，需 `task-metadata` 租约）
-- 本角色发起的缺陷单/问题单 `docs/collab/issues/IS-*`、评审单 `RV-*`、交接单 `HO-*`
+- 本角色发起的缺陷单/问题单 `z-readme/collab/issues/IS-*`、评审单 `RV-*`、交接单 `HO-*`
 
 ## 2. 严禁行为（Prohibited）
 

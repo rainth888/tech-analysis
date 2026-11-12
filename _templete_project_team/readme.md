@@ -1,21 +1,27 @@
-# 多角色协同大型项目通用开发模板（`_templete_project_team`）
+# 多用户、多角色 AI 软件团队项目模板
 
-本仓库是面向大型软件工程项目的**多角色团队协同开发通用项目模板（开发工具与大模型无关）**，由个人开发模板 `_templete_project` 升级演进而来，支持 **Cursor、Codex、Qoder、Antigravity、Windsurf、Cline、Claude Code、OpenCode 及各类通用对话大模型**。
+支持同角色多人以独立 Git 分支/worktree 并行开发。每名用户负责冻结自己交付的文档和代码；冻结修改须有明确接口或功能干涉及真人批准，批准可指定其他用户/角色接手。
 
-## 1. 模板核心能力一览
+## 使用入口
 
-| 维度                   | 内置机制与标准文件                                                                                                                                              |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **七大核心岗位角色**   | 项目经理 `PM`、产品经理/业务设计 `PO`、系统架构师 `AR`、后端工程师 `BE`、前端工程师 `FE`、测试工程师 `QA`、运维工程师 `OPS`（+ 可选 `AI`），见 `.agents/roles/` |
-| **工具无关准则与剧本** | 根宪法 `AGENTS.md` + 12 张角色/核对员卡 `.agents/roles/*.md` + 13 个标准协作剧本 `.agents/workflows/*.md`                                                       |
-| **全生命周期文档规范** | 覆盖 P0–P7 八个阶段、26 类技术与管理文档的强制章节、表头、ID 追溯与合格标准，见 `z-readme/01_大项目全技术规范与架构文档内容规范.md`                             |
-| **分岗位工作空间隔离** | 物理隔离的目录所有权矩阵 `docs/collab/OWNERS.md` + 多环境并行泳道与原子文件锁 `.agents/parallel/`，见 `z-readme/02_各岗位角色项目文件夹与工作空间规范.md`       |
-| **四大闭环协作协议**   | 单据流转（`HO/IS/RV/CR`）、契约先行与变更分级、测试准入与缺陷闭环、四级环境与发布回滚演练，见 `z-readme/03_项目沟通任务流转与接口对接规范.md`                   |
-| **100+ 专用提示词库**  | 按阶段×角色组织的完整提示词手册（含从 0 生成 SRS/PLAN/PROGRESS 及 40+ 任务卡推进模板），见 `z-readme/05_分阶段分角色提示词总手册.md`                            |
+1. 先读 `AGENTS.md`，再读对应 `.agents/roles/` 与 `.agents/workflows/inbox.md`。
+2. 复制为独立项目仓库后，按 `z-readme/202611122304_冻结并行开发与Git合并操作手册.md` 初始化唯一协调中心、创建工作树、领取范围。
+3. 开发、自检、显式提交、分别冻结成果，再经独立评审与合并队列验证候选版本。
+4. 新工程文档统一放 `z-readme/`，使用 `YYYYMMDDHHMM_` 前缀；`z-docs/` 只读原始需求。
 
-## 2. 快速开始（复制即用）
+## 文件与工具
 
-1. **复制模板**：将本文件夹复制为新项目根目录，执行 `git init -b main && git checkout -b develop`。
-2. **放入原始需求**：将项目的原始《需求规格说明书（SRS）》放入 `z-docs/` 目录（保持只读）。
-3. **全员就位**：打开 `z-readme/00_团队项目模板使用与全员就位指南.md`，按“五步点火流程”在各自 AI 工具中加载对应 `.agents/roles/<ROLE>.md` 开始协作。
-4. **规范校验與表格对齐**：随时运行 `py -3.11 z-scripts/validate_project.py --align`。
+- `.agents/parallel/policy.json`：唯一的机器路径权限配置；协作行为规则见 `AGENTS.md`。
+- `z-scripts/team_guard.py`：claim、heartbeat、check、freeze、thaw、recover、snapshot、release。
+- `z-scripts/validate_project.py`：只读结构/引用检查；格式化须显式 `--align --files`。
+- `z-scripts/test_team_guard.py`：临时 Git 仓库、真实 worktree 与并发场景回归。
+- `z-readme/202611122304_工程文档导航.md`：迁移后的工程文档模板；`00` 至 `06` 手册保留岗位内容与演练。
+
+```bash
+python3.11 z-scripts/validate_project.py
+python3.11 z-scripts/test_team_guard.py
+```
+
+要求 Python 3.10+，推荐 3.11。Windows 使用 `py -3.11`。团队工具应在独立项目根目录运行；本目录作为父仓库子模板时只运行只读校验和测试。
+
+协调工具不提供身份认证或远程锁服务。跨机器必须落实同一受控协调中心；受保护分支、真人审批和业务 CI 需要在实际项目平台配置。`.ci/` 中只提供示例，不能声称已启用。
