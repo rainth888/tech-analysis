@@ -1,8 +1,8 @@
 # 标准协作剧本：跨角色正式交接（/handoff <接收角色> <主题>）
 
 1. 自检并显式提交本泳道产出；由当前责任人分别 freeze 文档、代码、契约等工件。
-2. 新建 z-readme/collab/handoff/YYYYMMDDHHMM_HO-<TASK>-<USER>-<SESSION>-01.md，记录双方 user/role、任务、冻结号、精确提交 SHA、产物范围、验证证据与待办。
+2. 新建 z-readme/collab/handoff/HO-<TASK>-<USER>-<SESSION>-01.md，记录双方 user/role、任务、冻结号、精确提交 SHA、产物范围、验证证据与待办。
 3. 交接单随后单独提交/冻结；接收人创建新回执引用原单号，不回写已冻结文档。
 4. 向拥有协作看板写锁的 PM 提供汇总数据；不因自己发单就修改 PM 的文件。冻结继续保留，正常释放运行锁。
 
-详细命令与人工审批格式见 `z-readme/202611122304_冻结并行开发与Git合并操作手册.md`。
+详细命令与人工审批格式见 `z-readme/08_冻结并行开发与Git合并操作手册.md`。

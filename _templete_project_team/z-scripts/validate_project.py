@@ -22,7 +22,7 @@ REQUIRED_PATHS = [
     ".agents/parallel/policy.json",
     "z-scripts/team_guard.py",
     "z-scripts/test_team_guard.py",
-    "z-readme/202611122304_冻结并行开发与Git合并操作手册.md",
+    "z-readme/08_冻结并行开发与Git合并操作手册.md",
     ".agents/parallel/lanes/TEMPLATE.md",
     ".agents/roles/PM.md",
     ".agents/roles/PO.md",
@@ -49,17 +49,17 @@ REQUIRED_PATHS = [
     ".agents/workflows/accept.md",
     ".agents/workflows/cr.md",
     ".agents/workflows/wrapup.md",
-    "z-readme/202611122304_开发计划模板.md",
-    "z-readme/202611122304_进度看板模板.md",
-    "z-readme/202611122304_需求索引模板.md",
-    "z-readme/collab/202611122304_团队成员与职责.md",
-    "z-readme/collab/202611122304_文件归属与评审矩阵.md",
-    "z-readme/collab/202611122304_协作看板模板.md",
-    "z-readme/collab/202611122304_风险登记模板.md",
-    "z-readme/collab/handoff/202611122304_成果冻结交接模板.md",
-    "z-readme/collab/issues/202611122304_问题与缺陷模板.md",
-    "z-readme/collab/reviews/202611122304_独立评审模板.md",
-    "z-readme/collab/changes/202611122304_变更与人工解冻申请模板.md",
+    "z-readme/11_开发计划模板.md",
+    "z-readme/12_进度看板模板.md",
+    "z-readme/10_需求索引模板.md",
+    "z-readme/collab/00_团队成员与职责.md",
+    "z-readme/collab/01_文件归属与评审矩阵.md",
+    "z-readme/collab/02_协作看板模板.md",
+    "z-readme/collab/03_风险登记模板.md",
+    "z-readme/collab/handoff/00_成果冻结交接模板.md",
+    "z-readme/collab/issues/00_问题与缺陷模板.md",
+    "z-readme/collab/reviews/00_独立评审模板.md",
+    "z-readme/collab/changes/00_变更与人工解冻申请模板.md",
     "z-readme/00_团队项目模板使用与全员就位指南.md",
     "z-readme/01_大项目全技术规范与架构文档内容规范.md",
     "z-readme/02_各岗位角色项目文件夹与工作空间规范.md",
@@ -198,6 +198,10 @@ def main() -> int:
         if not (ROOT / rel).exists():
             errors.append(f"MISSING required file: {rel}")
 
+    for path in (ROOT / "z-readme").rglob("*"):
+        if path.is_file() and re.match(r"(?:19|20)\d{6}(?:\d{4}(?:\d{2})?)?[_-]", path.name):
+            errors.append(f"DATED filename (use an ordered or unique identifier): {path.relative_to(ROOT)}")
+
     md_files = sorted(p for p in ROOT.rglob("*.md") if not set(p.parts) &
                       {".git", "node_modules", "z-temps", ".venv", "leases"})
     aligned_count = 0
@@ -212,9 +216,9 @@ def main() -> int:
         fences = sum(1 for l in raw.splitlines() if l.lstrip().startswith("```"))
         if fences % 2 != 0:
             errors.append(f"UNCLOSED code fence ({fences}) in {md.relative_to(ROOT)}")
-        for ref in re.findall(r'`(z-readme/[^`\n]*?/\d{12}_[^`\n]+\.md|z-readme/\d{12}_[^`\n]+\.md)`', raw):
+        for ref in re.findall(r'`(z-readme/(?:[^`\n]*/)?\d{2}_[^`\n]+\.md)`', raw):
             if not (ROOT / ref).exists():
-                errors.append(f"MISSING dated reference: {ref} in {md.relative_to(ROOT)}")
+                errors.append(f"MISSING numbered reference: {ref} in {md.relative_to(ROOT)}")
 
     try:
         policy = json.loads((ROOT / ".agents/parallel/policy.json").read_text(encoding="utf-8"))

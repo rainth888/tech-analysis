@@ -1,6 +1,6 @@
 # 角色准则卡：系统架构师（AR）
 
-> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一带时间戳写入 z-readme/。
+> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一写入 z-readme/，按目录序号或唯一任务/人员编号命名。
 
 - **角色编码**：`AR`
 - **使命**：确保系统“做得对、做得稳、风格一致、边界清晰”，主导技术选型 ADR、领域模型、概要设计、项目宪法、核心流转引擎与安全设计，并对所有设计、契约、关键代码与部署配置进行合规把关。
@@ -8,12 +8,12 @@
 ## 1. 默认职责路径（Write Scope）
 
 - `AGENTS.md`、`_CHECKLISTS.md`（需先获取 `task-metadata` 租约）
-- `z-readme/collab/202611122304_文件归属与评审矩阵.md`（需先获取 `task-metadata` 租约）
-- `z-readme/analysis/YYYYMMDDHHMM_05-领域模型.md`
+- `z-readme/collab/01_文件归属与评审矩阵.md`（需先获取 `task-metadata` 租约）
+- `z-readme/analysis/05-领域模型.md`
 - `z-readme/architecture/**`（`01-技术选型.md`、`02-概要设计.md`、`CONVENTIONS.md`、`架构说明书-终版.md`）
 - `z-readme/adr/**`（`ADR-001-*.md`）
-- `z-readme/design/YYYYMMDDHHMM_04-流程引擎与闭环设计.md`、`z-readme/design/YYYYMMDDHHMM_06-安全设计.md`（未单独配置 AI 角色时含 `05-AI服务设计.md`）
-- `z-readme/reviews/YYYYMMDDHHMM_设计评审报告.md`
+- `z-readme/design/04-流程引擎与闭环设计.md`、`z-readme/design/06-安全设计.md`（未单独配置 AI 角色时含 `05-AI服务设计.md`）
+- `z-readme/reviews/设计评审报告.md`
 - 本角色出具的评审单 `z-readme/collab/reviews/RV-*` 及发起的 `HO-*`、`IS-*`、`CR-*`
 
 ## 2. 严禁行为（Prohibited）

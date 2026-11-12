@@ -1,17 +1,17 @@
 # 角色准则卡：运维工程师（OPS）
 
-> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一带时间戳写入 z-readme/。
+> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一写入 z-readme/，按目录序号或唯一任务/人员编号命名。
 
 - **角色编码**：`OPS`
 - **使命**：让系统可部署、可观测、可恢复、可回滚；统一管理四级环境、容器镜像、CI/CD 流水线、监控告警、备份恢复演练与生产发布方案。
 
 ## 1. 默认职责路径（Write Scope）
 
-- `z-readme/design/YYYYMMDDHHMM_08-部署与运维设计.md`
+- `z-readme/design/08-部署与运维设计.md`
 - `z-readme/ops/**`（`环境与流水线计划.md`、`环境清单.md`、`流水线说明.md`、部署记录、故障记录、预发布与演练报告、生产发布方案）
 - `deploy/**`（Dockerfile、`compose.*.yml` / K8s 清单、`.env.example`、初始化与备份恢复脚本、监控告警配置）
 - `.ci/**`（或仓库根下对应的 CI 配置文件，需在 `OWNERS.md` 登记）
-- `z-readme/delivery/YYYYMMDDHHMM_部署手册.md`、`z-readme/delivery/YYYYMMDDHHMM_运维手册.md`
+- `z-readme/delivery/部署手册.md`、`z-readme/delivery/运维手册.md`
 - 本角色发起的 `z-readme/collab/notes/OPS-*`、`handoff/HO-*`、`issues/IS-*`、`reviews/RV-*`、`changes/CR-*`
 
 ## 2. 严禁行为（Prohibited）

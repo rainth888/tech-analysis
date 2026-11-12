@@ -1,6 +1,6 @@
 # 个人泳道记录格式示例（本文件只读引用）
 
-实际记录保存到 z-readme/lanes/YYYYMMDDHHMM_<TASK>-<ROLE>-<USER>-<SESSION>.md；运行锁由 team_guard 维护。
+实际记录保存到 z-readme/lanes/<TASK>-<ROLE>-<USER>-<SESSION>.md；运行锁由 team_guard 维护。
 
 - user_id：稳定人员标识
 - actor_id：本次会话唯一标识

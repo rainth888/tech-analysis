@@ -272,11 +272,50 @@ class GuardTests(unittest.TestCase):
         self.claim()
         self.freeze()
         self.release()
-        path = "z-readme/202611122304_冻结快照.json"
+        path = "z-readme/SNAP-T1-u1-a1-01_冻结快照.json"
         self.claim([path], role="AR")
         self.call("snapshot", "--lane", "l1", "--actor", "a1", "--output", path)
         other = Path(self.temp.name) / "new-authority"
         self.call("init", "--project", "test-team", "--snapshot", str(self.root/path), coord=other)
+        self.assertEqual(self.call("status", coord=other)["freezes"]["F1"]["status"], "FROZEN")
+
+    def test_snapshot_rejects_dated_names_wrong_format_and_location(self):
+        for path, role in (
+            ("z-readme/20260102_旧快照.json", "AR"),
+            ("z-readme/202601020304_旧快照.json", "AR"),
+            ("z-readme/20260102030405-旧快照.json", "AR"),
+            ("z-readme/SNAP-T1-u1-a1-01.md", "AR"),
+            ("server/SNAP-T1-u1-a1-01.json", "BE"),
+        ):
+            with self.subTest(path=path):
+                self.claim([path], role=role)
+                before = self.call("status")
+                with self.assertRaises(guard.GuardError):
+                    self.call("snapshot", "--lane", "l1", "--actor", "a1", "--output", path)
+                self.assertFalse((self.root / path).exists())
+                self.assertEqual(self.call("status"), before)
+                self.release()
+
+    def test_numbered_snapshot_cannot_overwrite_existing_audit(self):
+        path = "z-readme/00_冻结快照.json"
+        self.claim([path], role="AR")
+        self.call("snapshot", "--lane", "l1", "--actor", "a1", "--output", path)
+        original = (self.root / path).read_bytes()
+        with self.assertRaises(guard.GuardError):
+            self.call("snapshot", "--lane", "l1", "--actor", "a1", "--output", path)
+        self.assertEqual((self.root / path).read_bytes(), original)
+
+    def test_legacy_dated_snapshot_import_preserves_freeze(self):
+        self.claim()
+        self.freeze()
+        self.release()
+        path = "z-readme/SNAP-T1-u1-a1-01.json"
+        self.claim([path], role="AR")
+        self.call("snapshot", "--lane", "l1", "--actor", "a1", "--output", path)
+        legacy = Path(self.temp.name) / "202601020304_归档快照.json"
+        legacy.write_bytes((self.root / path).read_bytes())
+        other = Path(self.temp.name) / "legacy-authority"
+        self.call("init", "--project", "test-team", "--snapshot", str(legacy), coord=other)
         self.assertEqual(self.call("status", coord=other)["freezes"]["F1"]["status"], "FROZEN")
 
     def test_release_requires_own_deliverables_frozen(self):

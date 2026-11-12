@@ -86,7 +86,7 @@ python3.11 z-scripts/team_guard.py release --lane T021-BE-dev01-s01 --actor dev0
 阶段结束时由持有文档泳道的协调员导出：
 
 ```bash
-python3.11 z-scripts/team_guard.py snapshot --lane T090-AR-admin-s01 --actor admin-s01 --output z-readme/202611122304_冻结协调快照.json
+python3.11 z-scripts/team_guard.py snapshot --lane T090-AR-admin-s01 --actor admin-s01 --output z-readme/SNAP-T090-admin-s01-01_冻结协调快照.json
 ```
 
 该命令要求输出路径已被该泳道领取，且不能覆盖旧快照。纯文档导出泳道不进入导出快照的活跃锁列表；其他活跃泳道仍保留。人工审核快照后显式提交入 Git。协调目录中的状态为运行权威，版本化快照是审计/恢复依据，不能用旧快照替换在线中心。
@@ -120,10 +120,10 @@ python3.11 z-scripts/team_guard.py snapshot --lane T090-AR-admin-s01 --actor adm
 
 `reason_kind` 仅允许 `interface_interference` 或 `functional_interference`。L1/L2 都需要真人解冻；兼容性只影响评审和回归规模。
 
-批准记录统一保存到 `z-readme/` 下带时间戳的 JSON，作为结构化审批工件。它必须由受控的人类审批渠道核验；工具只能检查字段，任何开发者都能写 JSON，因此不能把 JSON 本身当作身份认证。
+批准记录统一保存到 `z-readme/` 下带唯一编号的 JSON，作为结构化审批工件。它必须由受控的人类审批渠道核验；工具只能检查字段，任何开发者都能写 JSON，因此不能把 JSON 本身当作身份认证。
 
 ```bash
-python3.11 z-scripts/team_guard.py thaw --approval z-readme/202611122304_人工批准AP-T030.json
+python3.11 z-scripts/team_guard.py thaw --approval z-readme/AP-T030-human01-01_人工批准.json
 python3.11 z-scripts/team_guard.py claim --lane T030-QA-dev03-s02 --user dev03 --actor dev03-s02 --role QA --task T030 --paths server/orders/service.py
 ```
 

@@ -387,8 +387,10 @@ class Guard:
                 output = self.path(args.output)
                 require(any(contains(p, output) for p in lane["paths"]), "快照输出必须属于当前泳道")
                 self.permitted(state, lane, output)
-                require(output.startswith("z-readme/") and re.match(r"\d{12}_", Path(output).name),
-                        "快照必须写入 z-readme 并带分钟时间戳")
+                require(output.startswith("z-readme/") and Path(output).suffix == ".json",
+                        "快照必须写入 z-readme/ 下的 JSON 文件，使用唯一快照编号命名")
+                require(not re.match(r"(?:19|20)\d{6}(?:\d{4}(?:\d{2})?)?[_-]", Path(output).name),
+                        "新快照文件名不使用时间标签，请使用 SNAP-任务-人员-会话-序号")
                 require(not (self.root / output).exists(), "快照只能新建，不覆盖历史记录")
                 (self.root / output).parent.mkdir(parents=True, exist_ok=True)
                 exported = json.loads(json.dumps(state))

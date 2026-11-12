@@ -1,9 +1,9 @@
 # _STATE.md —— 团队项目全局状态与并行泳道看板
 
 > 本文件是团队项目的紧凑并行仪表盘（PM 拥有，修改需获取 `task-metadata` 租约）。
-> - 各角色实时任务细节与 `owned_paths` 见 `z-readme/lanes/YYYYMMDDHHMM_<TASK>-<ROLE>-<USER>-<SESSION>.md`；
-> - 跨角色交接单（HO）、问题/缺陷单（IS）、评审单（RV）、变更单（CR）见 `z-readme/collab/202611122304_协作看板模板.md`；
-> - 迭代级任务矩阵见 `z-readme/202611122304_进度看板模板.md`。
+> - 各角色实时任务细节与 `owned_paths` 见 `z-readme/lanes/<TASK>-<ROLE>-<USER>-<SESSION>.md`；
+> - 跨角色交接单（HO）、问题/缺陷单（IS）、评审单（RV）、变更单（CR）见 `z-readme/collab/02_协作看板模板.md`；
+> - 迭代级任务矩阵见 `z-readme/12_进度看板模板.md`。
 
 ## 项目基本信息
 

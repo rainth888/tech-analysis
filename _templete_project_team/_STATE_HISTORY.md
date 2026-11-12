@@ -1,7 +1,7 @@
 # _STATE_HISTORY.md —— 团队项目任务与阶段归档历史
 
 > 本文件仅以追加方式记录已完成（`✅ COMPLETED`）或已取消（`🚫 CANCELLED`）的阶段任务、重要里程碑与发布记录。
-> 当前实时状态只看 `_STATE.md`，未完成任务只看 `_TASKLISTS.md` 与 `z-readme/202611122304_开发计划模板.md`。
+> 当前实时状态只看 `_STATE.md`，未完成任务只看 `_TASKLISTS.md` 与 `z-readme/11_开发计划模板.md`。
 
 ## 模板基线初始化记录
 

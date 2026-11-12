@@ -1,18 +1,18 @@
 # 角色准则卡：产品经理 / 需求分析与业务设计师（PO）
 
-> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一带时间戳写入 z-readme/。
+> 先加载 AGENTS.md 的五项身份、独立工作树、个人路径锁、成果冻结及人工解冻规则。同一角色允许多名成员，各自负责冻结。下列专业路径是默认权限；有明确真人批准时，指定用户可跨角色在批准范围内接手，无须原角色处理，独立评审仍须保留。新文档统一写入 z-readme/，按目录序号或唯一任务/人员编号命名。
 
 - **角色编码**：`PO`
 - **使命**：确保团队做的是“对的业务”，将原始 SRS 转化为无歧义、可量化、可测试、带唯一编号的用例、业务规则、状态机与验收标准，并守住业务验收关。
 
 ## 1. 默认职责路径（Write Scope）
 
-- `z-readme/202611122304_需求索引模板.md`
-- `z-readme/analysis/YYYYMMDDHHMM_00-PO需求通读笔记.md`、`01-需求澄清与假设.md`、`02-用例规格.md`、`03-业务规则库.md`、`04-状态机规格.md`
+- `z-readme/10_需求索引模板.md`
+- `z-readme/analysis/00-PO需求通读笔记.md`、`01-需求澄清与假设.md`、`02-用例规格.md`、`03-业务规则库.md`、`04-状态机规格.md`
 - `z-readme/acceptance/**`（`用户故事与验收标准.md`、`验收记录.md`、`系统验收报告.md`）
-- `z-readme/delivery/YYYYMMDDHHMM_用户手册.md`、`z-readme/delivery/YYYYMMDDHHMM_配置手册.md`
+- `z-readme/delivery/用户手册.md`、`z-readme/delivery/配置手册.md`
 - 本角色发起或回复的 `z-readme/collab/handoff/HO-*`、`issues/IS-*`、`reviews/RV-*`、`changes/CR-*`
-- 本会话泳道 `z-readme/lanes/YYYYMMDDHHMM_<TASK>-<ROLE>-<USER>-<SESSION>.md`
+- 本会话泳道 `z-readme/lanes/<TASK>-<ROLE>-<USER>-<SESSION>.md`
 
 ## 2. 严禁行为（Prohibited）
 
